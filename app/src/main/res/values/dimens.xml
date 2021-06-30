@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2021.
+  ~ Davin Alfarizky Putra Basudewa
+  ~ Reference or Educational Purposes Only
+  ~ Skripshit Client
+  -->
+
+<resources>
+    <dimen name="font_title">32sp</dimen>
+    <dimen name="font_head1">20sp</dimen>
+    <dimen name="font_head2">16sp</dimen>
+    <dimen name="font_body1">16sp</dimen>
+    <dimen name="font_body2">14sp</dimen>
+    <dimen name="margin_m1">5dp</dimen>
+    <dimen name="margin_m2">8dp</dimen>
+    <dimen name="margin_m3">10dp</dimen>
+</resources>
