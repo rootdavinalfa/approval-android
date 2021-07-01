@@ -5,7 +5,7 @@
  * Skripshit Client
  */
 
-package xyz.dvnlabs.approval.core.data
+package xyz.dvnlabs.approval.core.data.remote
 
 import com.google.gson.Gson
 import retrofit2.Call
@@ -21,7 +21,6 @@ class GenericRetrofitCallback<T>(
 
     override fun onResponse(call: Call<T>, response: Response<T>) {
         baseNetworkCallback.onHideProgress()
-        println("CODE ${response.code()}")
         when (response.code()) {
             200 -> {
                 response.body()?.let { baseNetworkCallback.onSuccess(it) }
@@ -30,6 +29,13 @@ class GenericRetrofitCallback<T>(
                 response.body()?.let { baseNetworkCallback.onSuccess(it) }
             }
             401 -> {
+                response.errorBody()?.let {
+                    baseNetworkCallback.onUnAuthorized(
+                        Gson().fromJson(it.charStream(), ErrorResponse::class.java)
+                    )
+                }
+            }
+            403 -> {
                 response.errorBody()?.let {
                     baseNetworkCallback.onUnAuthorized(
                         Gson().fromJson(it.charStream(), ErrorResponse::class.java)
