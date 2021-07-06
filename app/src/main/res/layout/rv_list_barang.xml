@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2021.
+  ~ Davin Alfarizky Putra Basudewa
+  ~ Reference or Educational Purposes Only
+  ~ Skripshit Client
+  -->
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/primaryDarkColor"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/rv_listbarang_nama"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="{{nama_barang}}"
+            android:textColor="@color/primaryDarkColor"
+            android:textSize="@dimen/font_head1" />
+
+        <TextView
+            android:id="@+id/rv_listbarang_qty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="Qty: {{qty_barang}}"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/font_head1" />
+
+    </LinearLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

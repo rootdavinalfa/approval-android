@@ -9,6 +9,7 @@ package xyz.dvnlabs.approval.core.data.remote
 
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -33,11 +34,13 @@ class ApiService {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build()
+            val gson = GsonBuilder()
+                .setDateFormat("yyyy-MM-dd\'T\'HH:mm:ss")
 
             return Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson.create()))
                 .build()
         }
     }

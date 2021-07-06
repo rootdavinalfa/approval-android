@@ -25,11 +25,9 @@ import xyz.dvnlabs.approval.model.LoginResponse
 import xyz.dvnlabs.approval.model.UserNoPassword
 
 
-class UserRepo : KoinComponent {
+class UserRepo {
 
     private val baseURL = Constant.BASE_URL
-
-    private val preferences: Preferences by inject()
 
     fun login(
         context: Context,

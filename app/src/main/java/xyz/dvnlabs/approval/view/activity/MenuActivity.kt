@@ -9,9 +9,10 @@ package xyz.dvnlabs.approval.view.activity
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import xyz.dvnlabs.approval.base.BaseFragmentActivity
 import xyz.dvnlabs.approval.databinding.ActivityMenuBinding
 
-class MenuActivity : FragmentActivity() {
+class MenuActivity : BaseFragmentActivity() {
 
     private lateinit var menuBinding: ActivityMenuBinding
 

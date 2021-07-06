@@ -7,12 +7,10 @@
 
 package xyz.dvnlabs.approval.model
 
-import java.util.*
-
-data class UserNoPassword(
+data class TransactionDetailDTO(
     var id: String = "",
-    var email: String = "",
-    var userName: String = "",
-    var registeredOn: Date = Date(),
-    var roles: List<Role>? = null
+    var detailRequest: String = "",
+    var drug: DrugDTO? = null,
+    var qty: Double = 0.0,
+    var realQty: Double = 0.0
 ) : AuditDTO()

@@ -7,8 +7,9 @@
 
 package xyz.dvnlabs.approval.model
 
-data class Role(
-    var id: Int = 0,
-    var roleName: String = "",
-    var authority: String = ""
-)
+data class DrugDTO(
+    var idDrug: Long = 0,
+    var drugName: String = "",
+    var classified: String = "",
+    var qty: Double = 0.0,
+) : AuditDTO()

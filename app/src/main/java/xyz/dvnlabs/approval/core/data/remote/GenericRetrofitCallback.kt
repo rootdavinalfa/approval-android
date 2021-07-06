@@ -12,6 +12,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
+import xyz.dvnlabs.approval.core.event.RxBus
+import xyz.dvnlabs.approval.core.event.UnAuthorized
 import xyz.dvnlabs.approval.model.ErrorResponse
 import java.util.*
 
@@ -30,8 +32,10 @@ class GenericRetrofitCallback<T>(
             }
             401 -> {
                 response.errorBody()?.let {
+                    val json = Gson().fromJson(it.charStream(), ErrorResponse::class.java)
+                    RxBus.publish(UnAuthorized(json))
                     baseNetworkCallback.onUnAuthorized(
-                        Gson().fromJson(it.charStream(), ErrorResponse::class.java)
+                        json
                     )
                 }
             }
