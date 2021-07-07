@@ -7,8 +7,6 @@
 
 package xyz.dvnlabs.approval.core.event
 
-import xyz.dvnlabs.approval.model.ErrorResponse
-
-data class UnAuthorized(val message: ErrorResponse)
-
-data class RefreshAction(val where: TargetAction)
+enum class TargetAction {
+    FRAGMENT_DASHBOARD
+}

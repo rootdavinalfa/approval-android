@@ -11,12 +11,16 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.core.util.ItemDiff
 import xyz.dvnlabs.approval.core.util.mapStatusTrx
 import xyz.dvnlabs.approval.databinding.RvListTransactionBinding
 import xyz.dvnlabs.approval.model.TransactionDTO
+import xyz.dvnlabs.approval.view.fragment.DashboardFragmentDirections
+import xyz.dvnlabs.approval.view.fragment.DetailTrxFragment
 
 class RvListTrx(val context: Context) :
     RecyclerView.Adapter<RvListTrx.ViewHolder>() {
@@ -72,7 +76,10 @@ class RvListTrx(val context: Context) :
         }
 
         override fun onClick(v: View?) {
-            println()
+            val navController = itemView.findNavController()
+            val action = DashboardFragmentDirections
+                .actionDashboardFragmentToDetailTrxFragment(idTransaction = transactionDTO?.idTransaction ?: 0L)
+            navController.navigate(action)
         }
 
 

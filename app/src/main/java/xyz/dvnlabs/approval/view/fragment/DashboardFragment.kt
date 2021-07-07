@@ -23,6 +23,9 @@ import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.TransactionRepo
 import xyz.dvnlabs.approval.core.data.UserRepo
+import xyz.dvnlabs.approval.core.event.RefreshAction
+import xyz.dvnlabs.approval.core.event.RxBus
+import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.core.util.Page
 import xyz.dvnlabs.approval.core.util.Pageable
@@ -91,6 +94,12 @@ class DashboardFragment : FragmentBase() {
         }
         networkFetch()
         viewAction()
+        RxBus.listen(RefreshAction::class.java)
+            .subscribe {
+                if (it.where == TargetAction.FRAGMENT_DASHBOARD) {
+                    networkFetch()
+                }
+            }
     }
 
     private fun networkFetch() {

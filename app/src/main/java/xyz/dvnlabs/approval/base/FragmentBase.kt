@@ -33,6 +33,7 @@ open class FragmentBase : Fragment() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.dashboardFragment -> toolbar.visibility = View.GONE
+                R.id.detailTrxFragment -> toolbar.visibility = View.GONE
                 else -> toolbar.visibility = View.VISIBLE
             }
         }

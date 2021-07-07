@@ -28,11 +28,14 @@ interface TransactionAPI {
 
     @GET("${Constant.TRANSACTION_URL}page")
     fun getPage(
-        @QueryMap(encoded = true) pageable: Map<String,String>,
+        @QueryMap(encoded = true) pageable: Map<String, String>,
         @Query("userApprove") userApprove: String? = null,
         @Query("userDelivery") userDelivery: String? = null,
         @Query("userRequest") userRequest: String? = null,
         @Query("statusFlagIn") statusFlagIn: String? = null,
     ): Call<Page<TransactionDTO>>
+
+    @GET("${Constant.TRANSACTION_URL}{id}")
+    fun getById(@Path("id") id: Long): Call<TransactionDTO>
 
 }

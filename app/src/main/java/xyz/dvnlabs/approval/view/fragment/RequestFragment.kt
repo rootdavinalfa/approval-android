@@ -22,9 +22,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.core.data.DrugRepo
 import xyz.dvnlabs.approval.core.data.TransactionRepo
+import xyz.dvnlabs.approval.core.event.RefreshAction
+import xyz.dvnlabs.approval.core.event.RxBus
+import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.databinding.FragmentCreateBinding
 import xyz.dvnlabs.approval.model.DrugDTO
@@ -144,6 +148,7 @@ class RequestFragment : BottomSheetDialogFragment() {
                         it.token,
                         object : BaseNetworkCallback<RequestTransactionDTO> {
                             override fun onSuccess(data: RequestTransactionDTO) {
+                                RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
                                 this@RequestFragment.dismiss()
                             }
 

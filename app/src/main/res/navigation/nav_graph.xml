@@ -14,5 +14,18 @@
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="xyz.dvnlabs.approval.view.fragment.DashboardFragment"
-        android:label="DashboardFragment" />
+        android:label="DashboardFragment" >
+        <action
+            android:id="@+id/action_dashboardFragment_to_detailTrxFragment"
+            app:destination="@id/detailTrxFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailTrxFragment"
+        android:name="xyz.dvnlabs.approval.view.fragment.DetailTrxFragment"
+        android:label="DetailTrxFragment" >
+        <argument
+            android:name="idTransaction"
+            android:defaultValue="0L"
+            app:argType="long" />
+    </fragment>
 </navigation>
