@@ -18,6 +18,19 @@ interface TransactionAPI {
     @POST("${Constant.TRANSACTION_URL}create")
     fun createTransaction(@Body createTransactionDTO: RequestTransactionDTO): Call<RequestTransactionDTO>
 
+    @POST("${Constant.TRANSACTION_URL}cancel/{id}")
+    fun cancelTransaction(@Path("id") id: Long): Call<Void>
+
+
+    @POST("${Constant.TRANSACTION_URL}validate")
+    fun validateTransaction(@Body createTransactionDTO: RequestTransactionDTO): Call<TransactionDTO>
+
+    @POST("${Constant.TRANSACTION_URL}attach-delivery/{idtrx}/{iduser}")
+    fun attachDeliveryTransaction(
+        @Path("idtrx") idtrx: Long,
+        @Path("iduser") iduser: String
+    ): Call<TransactionDTO>
+
     @GET("${Constant.TRANSACTION_URL}list")
     fun getList(
         @Query("userApprove") userApprove: String? = null,

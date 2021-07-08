@@ -47,18 +47,53 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
-        tools:layout_editor_absoluteX="0dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dashboard_text_username">
 
-        <include
-            android:id="@+id/dashboard_listtrx_layout"
-            layout="@layout/dashboard_apotik_listtrx" />
-    </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/dashboard_apotik"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
+                tools:layout_editor_absoluteX="0dp">
+
+                <include
+                    android:id="@+id/dashboard_listtrx_layout_apotik"
+                    layout="@layout/dashboard_apotik_listtrx" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/dashboard_vgudang"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
+                tools:layout_editor_absoluteX="0dp">
+
+
+                <include
+                    android:id="@+id/dashboard_listtrx_layout_vgudang"
+                    layout="@layout/dashboard_vgudang_listrx" />
+
+            </RelativeLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/dashboard_button_add"

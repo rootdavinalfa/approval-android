@@ -76,4 +76,18 @@ class TransactionRepo {
         call.enqueue(GenericRetrofitCallback(callback))
     }
 
+
+    fun validateTransaction(
+        context: Context,
+        requestTransactionDTO: RequestTransactionDTO,
+        token: String,
+        callback: BaseNetworkCallback<TransactionDTO>
+    ) {
+        callback.onShowProgress()
+        val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
+            .validateTransaction(requestTransactionDTO)
+        call.enqueue(GenericRetrofitCallback(callback))
+    }
+
+
 }

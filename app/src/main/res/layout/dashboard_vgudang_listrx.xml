@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2021.
+  ~ Davin Alfarizky Putra Basudewa
+  ~ Reference or Educational Purposes Only
+  ~ Skripshit Client
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        app:contentPadding="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Belum Validasi"
+                android:textColor="@color/primaryDarkColor"
+                android:textSize="@dimen/font_head2"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listtrx_belumvalidasi"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                tools:listitem="@layout/rv_list_transaction" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        app:contentPadding="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Belum Penugasan"
+                android:textColor="@color/primaryDarkColor"
+                android:textSize="@dimen/font_head2"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listtrx_belumpenugasan"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                tools:listitem="@layout/rv_list_transaction" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+
+</LinearLayout>

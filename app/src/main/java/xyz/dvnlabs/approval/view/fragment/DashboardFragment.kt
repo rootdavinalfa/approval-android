@@ -12,10 +12,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -31,6 +31,7 @@ import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.core.util.Page
 import xyz.dvnlabs.approval.core.util.Pageable
+import xyz.dvnlabs.approval.core.util.RolePicker
 import xyz.dvnlabs.approval.databinding.FragmentDashboardBinding
 import xyz.dvnlabs.approval.model.ErrorResponse
 import xyz.dvnlabs.approval.model.TransactionDTO
@@ -108,102 +109,185 @@ class DashboardFragment : FragmentBase() {
         lifecycleScope.launch {
             preferences.getUserPref.collect {
                 if (it.token.isNotEmpty()) {
-                    transactionRepo.getPage(
-                        userRequest = it.userName,
-                        statusFlagIn = "1,2,3,4",
-                        pageable = Pageable()
-                            .pageRequest(size = 5)
-                            .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
-                            .build(),
-                        context = requireContext(),
-                        token = it.token,
-                        callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
-                            override fun onSuccess(data: Page<TransactionDTO>) {
-                                mainViewModel.setTransactionLast(data.content)
-                            }
+                    mainViewModel.userData.distinctUntilChanged()
+                        .observe(viewLifecycleOwner, { user ->
+                            if (user.id.isNotEmpty()) {
+                                binding.dashboardTextUsername.text = user.userName
+                                if (RolePicker
+                                        .isUserHave("ROLE_APOTIK", user.roles)
+                                ) {
+                                    fetchApotik(it.token, it.userName)
+                                    viewApotik()
+                                }
 
-                            override fun onFailed(errorResponse: ErrorResponse) {
-                                launch(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        errorResponse.error,
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                if (RolePicker
+                                        .isUserHave("ROLE_VGUDANG", user.roles)
+                                ) {
+                                    binding.dashboardButtonAdd.visibility = View.GONE
+                                    fetchGudang(it.token, it.userName)
+                                    viewVGudang()
+                                }
+                                if (RolePicker.isNotFound(
+                                        listOf(
+                                            "ROLE_APOTIK",
+                                            "ROLE_VGUDANG",
+                                            "ROLE_GUDANG",
+                                            "ROLE_DELIVER",
+                                        ), user.roles
+                                    )
+                                ) {
+                                    fetchApotik(it.token, it.userName)
+                                    viewApotik()
+                                    fetchGudang(it.token, it.userName)
+                                    viewVGudang()
                                 }
                             }
-
-                            override fun onShowProgress() {
-                                println()
-                            }
-
-                            override fun onHideProgress() {
-                                println()
-                            }
-
-                        }
-                    )
-
-                    // Delivered
-
-                    transactionRepo.getPage(
-                        userRequest = it.userName,
-                        statusFlagIn = "4,5",
-                        pageable = Pageable()
-                            .pageRequest(size = 5)
-                            .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
-                            .build(),
-                        context = requireContext(),
-                        token = it.token,
-                        callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
-                            override fun onSuccess(data: Page<TransactionDTO>) {
-                                mainViewModel.setTransactionFinish(data.content)
-                            }
-
-                            override fun onFailed(errorResponse: ErrorResponse) {
-                                launch(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        errorResponse.error,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-
-                            override fun onShowProgress() {
-                                showProgress()
-                            }
-
-                            override fun onHideProgress() {
-                                hideProgress()
-                            }
-
-                        }
-                    )
+                        })
                 }
             }
         }
     }
 
+    private fun fetchApotik(token: String, username: String) {
+        transactionRepo.getPage(
+            userRequest = username,
+            statusFlagIn = "1,2,3,4",
+            pageable = Pageable()
+                .pageRequest(size = 5)
+                .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
+                .build(),
+            context = requireContext(),
+            token = token,
+            callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
+                override fun onSuccess(data: Page<TransactionDTO>) {
+                    mainViewModel.setTransactionLast(data.content)
+                }
+
+                override fun onFailed(errorResponse: ErrorResponse) {
+                    Toast.makeText(
+                        requireContext(),
+                        errorResponse.error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                override fun onShowProgress() {
+                    showProgress()
+                }
+
+                override fun onHideProgress() {
+                    hideProgress()
+                }
+
+            }
+        )
+
+        // Delivered
+
+        transactionRepo.getPage(
+            userRequest = username,
+            statusFlagIn = "4,5",
+            pageable = Pageable()
+                .pageRequest(size = 5)
+                .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
+                .build(),
+            context = requireContext(),
+            token = token,
+            callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
+                override fun onSuccess(data: Page<TransactionDTO>) {
+                    mainViewModel.setTransactionFinish(data.content)
+                }
+
+                override fun onFailed(errorResponse: ErrorResponse) {
+                    Toast.makeText(
+                        requireContext(),
+                        errorResponse.error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                override fun onShowProgress() {
+                    showProgress()
+                }
+
+                override fun onHideProgress() {
+                    hideProgress()
+                }
+
+            }
+        )
+    }
+
+    private fun fetchGudang(token: String, username: String) {
+        transactionRepo.getPage(
+            statusFlagIn = "1",
+            pageable = Pageable()
+                .pageRequest(size = 5)
+                .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
+                .build(),
+            context = requireContext(),
+            token = token,
+            callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
+                override fun onSuccess(data: Page<TransactionDTO>) {
+                    mainViewModel.setTransactionValidate(data.content)
+                }
+
+                override fun onFailed(errorResponse: ErrorResponse) {
+                    Toast.makeText(
+                        requireContext(),
+                        errorResponse.error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                override fun onShowProgress() {
+                    showProgress()
+                }
+
+                override fun onHideProgress() {
+                    hideProgress()
+                }
+
+            }
+        )
+
+        // Need Delivery
+
+        transactionRepo.getPage(
+            userRequest = username,
+            statusFlagIn = "2",
+            pageable = Pageable()
+                .pageRequest(size = 5)
+                .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
+                .build(),
+            context = requireContext(),
+            token = token,
+            callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
+                override fun onSuccess(data: Page<TransactionDTO>) {
+                    mainViewModel.setTransactionDeliver(data.content)
+                }
+
+                override fun onFailed(errorResponse: ErrorResponse) {
+                    Toast.makeText(
+                        requireContext(),
+                        errorResponse.error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                override fun onShowProgress() {
+                    showProgress()
+                }
+
+                override fun onHideProgress() {
+                    hideProgress()
+                }
+
+            }
+        )
+    }
+
     private fun viewAction() {
-
-        val adapterLast = RvListTrx(requireContext())
-        binding.dashboardListtrxLayout.listtrxLast.layoutManager =
-            LinearLayoutManager(requireContext())
-        binding.dashboardListtrxLayout.listtrxLast.adapter = adapterLast
-
-        mainViewModel.transactionLast.observe(viewLifecycleOwner, {
-            adapterLast.setData(it)
-        })
-
-        val adapterFinish = RvListTrx(requireContext())
-        binding.dashboardListtrxLayout.listtrxFinish.layoutManager =
-            LinearLayoutManager(requireContext())
-        binding.dashboardListtrxLayout.listtrxFinish.adapter = adapterFinish
-
-        mainViewModel.transactionFinish.observe(viewLifecycleOwner, {
-            adapterFinish.setData(it)
-        })
-
 
         binding.dashboardButtonAdd.setOnClickListener {
             RequestFragment().show(requireActivity().supportFragmentManager, "ADD_FRAGMENT")
@@ -214,12 +298,53 @@ class DashboardFragment : FragmentBase() {
             navController.navigate(R.id.notificationFragment)
 
         }
+    }
 
-        mainViewModel.userData.observe(viewLifecycleOwner,
-            {
-                binding.dashboardTextUsername.text = it.userName
-            }
-        )
+    private fun viewApotik() {
+        binding.dashboardApotik.visibility = View.VISIBLE
+        val adapterLast = RvListTrx(requireContext())
+        binding.dashboardListtrxLayoutApotik.listtrxLast.layoutManager =
+            LinearLayoutManager(requireContext())
+        binding.dashboardListtrxLayoutApotik.listtrxLast.adapter = adapterLast
+
+        mainViewModel.transactionLast.observe(viewLifecycleOwner, {
+            adapterLast.setData(it)
+        })
+
+        val adapterFinish = RvListTrx(requireContext())
+        binding.dashboardListtrxLayoutApotik.listtrxFinish.layoutManager =
+            LinearLayoutManager(requireContext())
+        binding.dashboardListtrxLayoutApotik.listtrxFinish.adapter = adapterFinish
+
+        mainViewModel.transactionFinish.observe(viewLifecycleOwner, {
+            adapterFinish.setData(it)
+        })
+
+
+    }
+
+    private fun viewVGudang() {
+        binding.dashboardVgudang.visibility = View.VISIBLE
+
+        val adapterValidate = RvListTrx(requireContext())
+        binding.dashboardListtrxLayoutVgudang.listtrxBelumvalidasi.layoutManager =
+            LinearLayoutManager(requireContext())
+        binding.dashboardListtrxLayoutVgudang.listtrxBelumvalidasi.adapter = adapterValidate
+
+        mainViewModel.transactionValidate.observe(viewLifecycleOwner, {
+            adapterValidate.setData(it)
+        })
+
+        val adapterDeliver = RvListTrx(requireContext())
+        binding.dashboardListtrxLayoutVgudang.listtrxBelumpenugasan.layoutManager =
+            LinearLayoutManager(requireContext())
+        binding.dashboardListtrxLayoutVgudang.listtrxBelumpenugasan.adapter = adapterDeliver
+
+        mainViewModel.transactionFinish.observe(viewLifecycleOwner, {
+            adapterDeliver.setData(it)
+        })
+
+
     }
 
     override fun onDestroyView() {

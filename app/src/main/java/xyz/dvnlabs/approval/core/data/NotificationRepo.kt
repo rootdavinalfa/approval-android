@@ -22,13 +22,14 @@ class NotificationRepo {
     fun getList(
         sender: String = "",
         target: String = "",
+        idTransaction: Long? = null,
         context: Context,
         token: String,
         callback: BaseNetworkCallback<List<NotificationDTO>>
     ) {
         callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(NotificationAPI::class.java)
-            .getList(sender, target)
+            .getList(sender, target, idTransaction)
         call.enqueue(GenericRetrofitCallback(callback))
     }
 }

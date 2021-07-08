@@ -18,7 +18,8 @@ interface NotificationAPI {
     @GET("${Constant.NOTIFICATION_URL}list")
     fun getList(
         @Query("sender") sender: String = "",
-        @Query("target") target: String = ""
+        @Query("target") target: String = "",
+        @Query("idtransaction") idtransaction: Long? = null
     ): Call<List<NotificationDTO>>
 
 }

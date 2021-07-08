@@ -15,4 +15,4 @@ data class UserNoPassword(
     var userName: String = "",
     var registeredOn: Date = Date(),
     var roles: List<Role>? = null
-) : AuditDTO()
+)

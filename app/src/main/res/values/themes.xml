@@ -17,4 +17,9 @@
     <style name="ButtonConfirm" parent="Widget.MaterialComponents.Button">
         <item name="colorPrimary">@color/greenLight</item>
     </style>
+
+    <style name="ButtonError" parent="Widget.MaterialComponents.Button">
+        <item name="colorPrimary">@color/redLight</item>
+    </style>
+
 </resources>

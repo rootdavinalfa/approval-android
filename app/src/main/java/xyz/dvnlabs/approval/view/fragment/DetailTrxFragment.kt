@@ -20,13 +20,23 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
+import xyz.dvnlabs.approval.core.data.NotificationRepo
 import xyz.dvnlabs.approval.core.data.TransactionRepo
+import xyz.dvnlabs.approval.core.event.RefreshAction
+import xyz.dvnlabs.approval.core.event.RxBus
+import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.preferences.Preferences
+import xyz.dvnlabs.approval.core.util.RolePicker
+import xyz.dvnlabs.approval.core.util.mapStatusDetailTrx
 import xyz.dvnlabs.approval.core.util.mapStatusTrx
 import xyz.dvnlabs.approval.databinding.FragmentDetailTrxBinding
 import xyz.dvnlabs.approval.model.ErrorResponse
+import xyz.dvnlabs.approval.model.NotificationDTO
+import xyz.dvnlabs.approval.model.RequestTransactionDTO
 import xyz.dvnlabs.approval.model.TransactionDTO
 import xyz.dvnlabs.approval.view.rv.RvListDrug
+import xyz.dvnlabs.approval.view.rv.RvListHistory
+import xyz.dvnlabs.approval.view.viewmodel.MainViewModel
 import xyz.dvnlabs.approval.view.viewmodel.UserViewModel
 
 class DetailTrxFragment : FragmentBase() {
@@ -40,7 +50,11 @@ class DetailTrxFragment : FragmentBase() {
 
     private val transactionRepo: TransactionRepo by inject()
 
+    private val notificationRepo: NotificationRepo by inject()
+
     private val userViewModel: UserViewModel by inject()
+
+    private val mainViewModel: MainViewModel by inject()
 
     private var idTransaction: Long = 0
 
@@ -90,6 +104,35 @@ class DetailTrxFragment : FragmentBase() {
                             }
 
                         })
+
+                    notificationRepo.getList(
+                        idTransaction = idTransaction,
+                        context = requireContext(),
+                        token = it.token,
+                        callback = object : BaseNetworkCallback<List<NotificationDTO>> {
+                            override fun onSuccess(data: List<NotificationDTO>) {
+                                userViewModel.setUserNotification(data)
+                            }
+
+                            override fun onFailed(errorResponse: ErrorResponse) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    errorResponse.message,
+                                    Toast.LENGTH_LONG
+                                )
+                                    .show()
+                            }
+
+                            override fun onShowProgress() {
+                                showProgress()
+                            }
+
+                            override fun onHideProgress() {
+                                hideProgress()
+                            }
+                        }
+                    )
+
                 }
             }
         }
@@ -105,8 +148,97 @@ class DetailTrxFragment : FragmentBase() {
             }
             binding.detailTextId.text = "Transaction ID: ${it.idTransaction}"
             binding.detailTextStatus.text = it.statusFlag.mapStatusTrx()
-            binding.detailButtonAction.isEnabled = it.statusFlag == "3"
+            binding.detailButtonAction.text = it.statusFlag.mapStatusDetailTrx()
         })
+
+        mainViewModel.userData.observe(viewLifecycleOwner, { user ->
+            if (user.id.isEmpty()) {
+                return@observe
+            }
+
+            if (RolePicker.isNotFound(
+                    listOf(
+                        "ROLE_APOTIK"
+                    ), user.roles
+                )
+            ) {
+                binding.detailButtonCancel.isEnabled = false
+                binding.detailButtonAction.isEnabled = true
+            } else if (RolePicker.isNotFound(
+                    listOf(
+                        "ROLE_GUDANG"
+                    ), user.roles
+                )
+            ) {
+                binding.detailButtonCancel.isEnabled = false
+                binding.detailButtonAction.isEnabled = false
+            } else {
+                binding.detailButtonCancel.isEnabled = true
+                binding.detailButtonAction.isEnabled = false
+            }
+
+            binding.detailButtonAction.setOnClickListener {
+                if (RolePicker
+                        .isUserHave("ROLE_VGUDANG", user.roles)
+                ) {
+                    validate()
+                } else if (RolePicker
+                        .isUserHave("ROLE_GUDANG", user.roles)
+                ) {
+                }
+            }
+
+        })
+
+        val adapterHistory = RvListHistory(requireContext())
+        binding.detailListHistory.layoutManager = LinearLayoutManager(requireContext())
+        binding.detailListHistory.adapter = adapterHistory
+        userViewModel.userNotification.observe(viewLifecycleOwner, {
+            adapterHistory.setData(it)
+        })
+    }
+
+    private fun validate() {
+        lifecycleScope.launch {
+            preferences.getUserPref.collect {
+                if (it.token.isEmpty()) {
+                    return@collect
+                }
+
+                transactionRepo.validateTransaction(
+                    requireContext(),
+                    RequestTransactionDTO(),
+                    it.token,
+                    object : BaseNetworkCallback<TransactionDTO> {
+                        override fun onSuccess(data: TransactionDTO) {
+                            RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
+                        }
+
+                        override fun onFailed(errorResponse: ErrorResponse) {
+                            Toast.makeText(
+                                requireContext(),
+                                errorResponse.message,
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+
+                        override fun onShowProgress() {
+                            showProgress()
+                        }
+
+                        override fun onHideProgress() {
+                            hideProgress()
+                        }
+
+                    }
+                )
+            }
+        }
+    }
+
+    private fun delivery() {
+
     }
 
     override fun onDestroyView() {

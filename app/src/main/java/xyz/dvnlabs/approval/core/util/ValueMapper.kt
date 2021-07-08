@@ -29,3 +29,20 @@ fun String?.mapStatusTrx(): String {
         }
     }
 }
+
+fun String?.mapStatusDetailTrx(): String {
+    return when (this) {
+        "1" -> {
+            "Validate"
+        }
+        "2" -> {
+            "Delivery"
+        }
+        "3" -> {
+            "Sudah Diterima"
+        }
+        else -> {
+            this ?: ""
+        }
+    }
+}
