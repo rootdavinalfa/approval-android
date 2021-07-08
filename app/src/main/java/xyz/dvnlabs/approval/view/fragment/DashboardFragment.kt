@@ -13,12 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.TransactionRepo
@@ -80,11 +82,11 @@ class DashboardFragment : FragmentBase() {
                             }
 
                             override fun onShowProgress() {
-                                println()
+                                showProgress()
                             }
 
                             override fun onHideProgress() {
-                                println()
+                                hideProgress()
                             }
 
                         }
@@ -168,11 +170,11 @@ class DashboardFragment : FragmentBase() {
                             }
 
                             override fun onShowProgress() {
-                                println()
+                                showProgress()
                             }
 
                             override fun onHideProgress() {
-                                println()
+                                hideProgress()
                             }
 
                         }
@@ -205,6 +207,12 @@ class DashboardFragment : FragmentBase() {
 
         binding.dashboardButtonAdd.setOnClickListener {
             RequestFragment().show(requireActivity().supportFragmentManager, "ADD_FRAGMENT")
+        }
+
+        binding.dashboardImgNotif.setOnClickListener {
+            val navController = requireActivity().findNavController(R.id.fragmentContainerView)
+            navController.navigate(R.id.notificationFragment)
+
         }
 
         mainViewModel.userData.observe(viewLifecycleOwner,

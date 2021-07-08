@@ -35,6 +35,7 @@ class UserRepo {
         password: String,
         callback: BaseNetworkCallback<LoginResponse>
     ) {
+        callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, "").create(AuthAPI::class.java)
             .signIn(LoginRequest(userName, password))
         call.enqueue(GenericRetrofitCallback(callback))
@@ -46,6 +47,7 @@ class UserRepo {
         userName: String = "",
         callback: BaseNetworkCallback<UserNoPassword>
     ) {
+        callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(AuthAPI::class.java)
             .getUser(userName)
         call.enqueue(GenericRetrofitCallback(callback))

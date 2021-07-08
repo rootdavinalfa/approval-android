@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_dashboardFragment_to_detailTrxFragment"
             app:destination="@id/detailTrxFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_notificationFragment"
+            app:destination="@id/notificationFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailTrxFragment"
@@ -28,4 +31,8 @@
             android:defaultValue="0L"
             app:argType="long" />
     </fragment>
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="xyz.dvnlabs.approval.view.fragment.NotificationFragment"
+        android:label="NotificationFragment" />
 </navigation>

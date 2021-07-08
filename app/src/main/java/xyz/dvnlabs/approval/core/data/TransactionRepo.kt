@@ -27,6 +27,7 @@ class TransactionRepo {
         token: String,
         callback: BaseNetworkCallback<RequestTransactionDTO>
     ) {
+        callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
             .createTransaction(requestTransactionDTO)
         call.enqueue(GenericRetrofitCallback(callback))
@@ -41,6 +42,7 @@ class TransactionRepo {
         token: String,
         callback: BaseNetworkCallback<List<TransactionDTO>>
     ) {
+        callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
             .getList(userApprove, userDelivery, userRequest, statusFlagIn)
         call.enqueue(GenericRetrofitCallback(callback))
@@ -56,7 +58,7 @@ class TransactionRepo {
         token: String,
         callback: BaseNetworkCallback<Page<TransactionDTO>>
     ) {
-
+        callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
             .getPage(pageable, userApprove, userDelivery, userRequest, statusFlagIn)
         call.enqueue(GenericRetrofitCallback(callback))
@@ -68,6 +70,7 @@ class TransactionRepo {
         token: String,
         callback: BaseNetworkCallback<TransactionDTO>
     ) {
+        callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
             .getById(id)
         call.enqueue(GenericRetrofitCallback(callback))

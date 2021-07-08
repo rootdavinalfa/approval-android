@@ -13,64 +13,69 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
-import xyz.dvnlabs.approval.core.data.TransactionRepo
+import xyz.dvnlabs.approval.core.data.NotificationRepo
 import xyz.dvnlabs.approval.core.preferences.Preferences
-import xyz.dvnlabs.approval.core.util.mapStatusTrx
-import xyz.dvnlabs.approval.databinding.FragmentDetailTrxBinding
+import xyz.dvnlabs.approval.databinding.FragmentNotificationBinding
 import xyz.dvnlabs.approval.model.ErrorResponse
-import xyz.dvnlabs.approval.model.TransactionDTO
-import xyz.dvnlabs.approval.view.rv.RvListDrug
+import xyz.dvnlabs.approval.model.NotificationDTO
+import xyz.dvnlabs.approval.view.rv.RvListHistory
 import xyz.dvnlabs.approval.view.viewmodel.UserViewModel
 
-class DetailTrxFragment : FragmentBase() {
+class NotificationFragment : FragmentBase() {
 
-    private val args: DetailTrxFragmentArgs by navArgs()
+    private var fragmentNotificationBinding: FragmentNotificationBinding? = null
+    private val binding get() = fragmentNotificationBinding!!
 
-    private var fragmentDetailTrxFragment: FragmentDetailTrxBinding? = null
-    private val binding get() = fragmentDetailTrxFragment!!
+    private val notificationRepo: NotificationRepo by inject()
 
     private val preferences: Preferences by inject()
 
-    private val transactionRepo: TransactionRepo by inject()
-
-    private val userViewModel: UserViewModel by inject()
-
-    private var idTransaction: Long = 0
+    private val userViewModel: UserViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        fragmentDetailTrxFragment = FragmentDetailTrxBinding.inflate(inflater, container, false)
+        fragmentNotificationBinding = FragmentNotificationBinding
+            .inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        idTransaction = args.idTransaction
-        networkFetch()
         initView()
+        networkFetch()
+    }
+
+
+    private fun initView() {
+        val adapter = RvListHistory(requireContext())
+        binding.notificationListNotification.layoutManager = LinearLayoutManager(requireContext())
+        binding.notificationListNotification.adapter = adapter
+        userViewModel.userNotification.observe(viewLifecycleOwner, {
+            adapter.setData(it)
+        })
     }
 
     private fun networkFetch() {
         lifecycleScope.launch {
             preferences.getUserPref.collect {
                 if (it.token.isNotEmpty()) {
-                    transactionRepo.getById(
-                        idTransaction,
-                        requireContext(),
-                        it.token,
-                        object : BaseNetworkCallback<TransactionDTO> {
-                            override fun onSuccess(data: TransactionDTO) {
-                                userViewModel.setTransaction(data)
+                    notificationRepo.getList(
+                        target = it.userName,
+                        context = requireContext(),
+                        token = it.token,
+                        callback = object : BaseNetworkCallback<List<NotificationDTO>> {
+                            override fun onSuccess(data: List<NotificationDTO>) {
+                                userViewModel.setUserNotification(data)
                             }
 
                             override fun onFailed(errorResponse: ErrorResponse) {
@@ -89,29 +94,18 @@ class DetailTrxFragment : FragmentBase() {
                                 hideProgress()
                             }
 
-                        })
+                        }
+                    )
                 }
             }
         }
+
     }
 
-    private fun initView() {
-        val adapter = RvListDrug(requireContext())
-        binding.detailListObat.layoutManager = LinearLayoutManager(requireContext())
-        binding.detailListObat.adapter = adapter
-        userViewModel.transactionLive.observe(viewLifecycleOwner, {
-            it.transactionDetails?.mapNotNull { td -> td.drug }?.let { drg ->
-                adapter.setData(drg)
-            }
-            binding.detailTextId.text = "Transaction ID: ${it.idTransaction}"
-            binding.detailTextStatus.text = it.statusFlag.mapStatusTrx()
-            binding.detailButtonAction.isEnabled = it.statusFlag == "3"
-        })
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        fragmentDetailTrxFragment = null
+        fragmentNotificationBinding = null
     }
 
 }

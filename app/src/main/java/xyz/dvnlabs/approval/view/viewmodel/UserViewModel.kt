@@ -11,6 +11,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import xyz.dvnlabs.approval.model.DrugDTO
+import xyz.dvnlabs.approval.model.NotificationDTO
 import xyz.dvnlabs.approval.model.TransactionDTO
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
@@ -38,6 +39,18 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setTransaction(transactionDTO: TransactionDTO) {
         transactionFlow.value = transactionDTO
+    }
+
+
+    private val userNotificationFlow: MutableStateFlow<List<NotificationDTO>> =
+        MutableStateFlow(ArrayList())
+
+    val userNotification: LiveData<List<NotificationDTO>> = userNotificationFlow
+        .asLiveData(viewModelScope.coroutineContext)
+        .distinctUntilChanged()
+
+    fun setUserNotification(notifications: List<NotificationDTO>) {
+        userNotificationFlow.value = notifications
     }
 
 

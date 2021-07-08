@@ -11,23 +11,24 @@ import android.content.Context
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.core.Constant
 import xyz.dvnlabs.approval.core.data.remote.ApiService
-import xyz.dvnlabs.approval.core.data.remote.DrugAPI
 import xyz.dvnlabs.approval.core.data.remote.GenericRetrofitCallback
-import xyz.dvnlabs.approval.model.DrugDTO
+import xyz.dvnlabs.approval.core.data.remote.NotificationAPI
+import xyz.dvnlabs.approval.model.NotificationDTO
 
-class DrugRepo {
-
+class NotificationRepo {
     private val baseURL = Constant.BASE_URL
 
+
     fun getList(
+        sender: String = "",
+        target: String = "",
         context: Context,
         token: String,
-        callback: BaseNetworkCallback<List<DrugDTO>>
+        callback: BaseNetworkCallback<List<NotificationDTO>>
     ) {
         callback.onShowProgress()
-        val call = ApiService.getClient(context, baseURL, token).create(DrugAPI::class.java)
-            .getList()
+        val call = ApiService.getClient(context, baseURL, token).create(NotificationAPI::class.java)
+            .getList(sender, target)
         call.enqueue(GenericRetrofitCallback(callback))
     }
-
 }

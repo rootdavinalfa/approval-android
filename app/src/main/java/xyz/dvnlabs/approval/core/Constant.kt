@@ -13,4 +13,5 @@ object Constant {
     const val AUTH_URL = "auth/"
     const val DRUGS_URL = "drugs/"
     const val TRANSACTION_URL = "transaction/"
+    const val NOTIFICATION_URL = "notification/"
 }

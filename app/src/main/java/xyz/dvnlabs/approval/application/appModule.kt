@@ -5,6 +5,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import xyz.dvnlabs.approval.core.data.DrugRepo
+import xyz.dvnlabs.approval.core.data.NotificationRepo
 import xyz.dvnlabs.approval.core.data.TransactionRepo
 import xyz.dvnlabs.approval.core.data.UserRepo
 import xyz.dvnlabs.approval.core.data.local.LocalDB
@@ -31,6 +32,10 @@ val appModule = module {
 
     single {
         DrugRepo()
+    }
+
+    single {
+        NotificationRepo()
     }
 
     single {
