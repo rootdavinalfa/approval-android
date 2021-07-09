@@ -42,7 +42,7 @@ fun String?.mapStatusDetailTrx(): String {
             "Sudah Diterima"
         }
         else -> {
-            this ?: ""
+            ""
         }
     }
 }

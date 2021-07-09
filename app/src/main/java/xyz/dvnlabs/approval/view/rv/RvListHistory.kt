@@ -11,11 +11,13 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import xyz.dvnlabs.approval.core.util.ItemDiff
 import xyz.dvnlabs.approval.databinding.RvListHistoryBinding
 import xyz.dvnlabs.approval.model.NotificationDTO
+import xyz.dvnlabs.approval.view.fragment.NotificationFragmentDirections
 
 class RvListHistory(val context: Context) : RecyclerView.Adapter<RvListHistory.ViewHolder>() {
 
@@ -62,7 +64,12 @@ class RvListHistory(val context: Context) : RecyclerView.Adapter<RvListHistory.V
         }
 
         override fun onClick(v: View?) {
-            println()
+            val navController = itemView.findNavController()
+            val action = NotificationFragmentDirections
+                .actionNotificationFragmentToDetailTrxFragment(
+                    idTransaction = notification?.transaction?.idTransaction ?: 0L
+                )
+            navController.navigate(action)
         }
 
     }

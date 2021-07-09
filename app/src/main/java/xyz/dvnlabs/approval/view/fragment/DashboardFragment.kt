@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
@@ -254,7 +255,7 @@ class DashboardFragment : FragmentBase() {
         // Need Delivery
 
         transactionRepo.getPage(
-            userRequest = username,
+            userApprove = username,
             statusFlagIn = "2",
             pageable = Pageable()
                 .pageRequest(size = 5)
@@ -340,7 +341,7 @@ class DashboardFragment : FragmentBase() {
             LinearLayoutManager(requireContext())
         binding.dashboardListtrxLayoutVgudang.listtrxBelumpenugasan.adapter = adapterDeliver
 
-        mainViewModel.transactionFinish.observe(viewLifecycleOwner, {
+        mainViewModel.transactionDeliver.observe(viewLifecycleOwner, {
             adapterDeliver.setData(it)
         })
 

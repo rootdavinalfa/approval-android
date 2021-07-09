@@ -34,5 +34,9 @@
     <fragment
         android:id="@+id/notificationFragment"
         android:name="xyz.dvnlabs.approval.view.fragment.NotificationFragment"
-        android:label="NotificationFragment" />
+        android:label="NotificationFragment" >
+        <action
+            android:id="@+id/action_notificationFragment_to_detailTrxFragment"
+            app:destination="@id/detailTrxFragment" />
+    </fragment>
 </navigation>

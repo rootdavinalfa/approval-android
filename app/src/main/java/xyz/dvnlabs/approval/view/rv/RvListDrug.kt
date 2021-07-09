@@ -43,6 +43,10 @@ class RvListDrug(val context: Context) :
         diffResult.dispatchUpdatesTo(this)
     }
 
+    fun getDrugs(): List<DrugDTO> {
+        return dataList
+    }
+
     fun addData(drug: DrugDTO) {
         val newDrug = dataList.toMutableList()
         newDrug.add(drug)

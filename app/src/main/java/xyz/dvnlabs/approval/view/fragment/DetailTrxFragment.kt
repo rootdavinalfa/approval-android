@@ -13,11 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.NotificationRepo
@@ -52,9 +55,9 @@ class DetailTrxFragment : FragmentBase() {
 
     private val notificationRepo: NotificationRepo by inject()
 
-    private val userViewModel: UserViewModel by inject()
+    private val userViewModel: UserViewModel by sharedViewModel()
 
-    private val mainViewModel: MainViewModel by inject()
+    private val mainViewModel: MainViewModel by sharedViewModel()
 
     private var idTransaction: Long = 0
 
@@ -111,7 +114,7 @@ class DetailTrxFragment : FragmentBase() {
                         token = it.token,
                         callback = object : BaseNetworkCallback<List<NotificationDTO>> {
                             override fun onSuccess(data: List<NotificationDTO>) {
-                                userViewModel.setUserNotification(data)
+                                userViewModel.setUserNotification(data.sortedByDescending { dt -> dt.createdDate })
                             }
 
                             override fun onFailed(errorResponse: ErrorResponse) {
@@ -143,6 +146,10 @@ class DetailTrxFragment : FragmentBase() {
         binding.detailListObat.layoutManager = LinearLayoutManager(requireContext())
         binding.detailListObat.adapter = adapter
         userViewModel.transactionLive.observe(viewLifecycleOwner, {
+            it?.transactionDetails?.forEach { td ->
+                td.drug?.qty = td.qty
+            }
+
             it.transactionDetails?.mapNotNull { td -> td.drug }?.let { drg ->
                 adapter.setData(drg)
             }
@@ -150,30 +157,25 @@ class DetailTrxFragment : FragmentBase() {
             binding.detailTextStatus.text = it.statusFlag.mapStatusTrx()
             binding.detailButtonAction.text = it.statusFlag.mapStatusDetailTrx()
         })
-
         mainViewModel.userData.observe(viewLifecycleOwner, { user ->
             if (user.id.isEmpty()) {
                 return@observe
             }
 
-            if (RolePicker.isNotFound(
-                    listOf(
-                        "ROLE_APOTIK"
-                    ), user.roles
+            if (RolePicker.isUserHave(
+                    "ROLE_APOTIK", user.roles
+                )
+            ) {
+                binding.detailButtonCancel.isEnabled = true
+                binding.detailButtonAction.isEnabled = false
+            } else if (RolePicker.isUserHave(
+                    "ROLE_VGUDANG", user.roles
                 )
             ) {
                 binding.detailButtonCancel.isEnabled = false
                 binding.detailButtonAction.isEnabled = true
-            } else if (RolePicker.isNotFound(
-                    listOf(
-                        "ROLE_GUDANG"
-                    ), user.roles
-                )
-            ) {
-                binding.detailButtonCancel.isEnabled = false
-                binding.detailButtonAction.isEnabled = false
             } else {
-                binding.detailButtonCancel.isEnabled = true
+                binding.detailButtonCancel.isEnabled = false
                 binding.detailButtonAction.isEnabled = false
             }
 
@@ -190,6 +192,10 @@ class DetailTrxFragment : FragmentBase() {
 
         })
 
+        binding.detailButtonCancel.setOnClickListener {
+            cancelTrx()
+        }
+
         val adapterHistory = RvListHistory(requireContext())
         binding.detailListHistory.layoutManager = LinearLayoutManager(requireContext())
         binding.detailListHistory.adapter = adapterHistory
@@ -198,19 +204,66 @@ class DetailTrxFragment : FragmentBase() {
         })
     }
 
+    private fun cancelTrx() {
+        lifecycleScope.launch {
+            preferences.getUserPref.collect {
+                if (it.token.isEmpty()) {
+                    return@collect
+                }
+                transactionRepo.cancelTransaction(
+                    idTransaction,
+                    requireContext(),
+                    it.token,
+                    object : BaseNetworkCallback<Void> {
+                        override fun onSuccess(data: Void) {
+                            requireActivity().onBackPressed()
+                            //RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
+                        }
+
+                        override fun onFailed(errorResponse: ErrorResponse) {
+                            Toast.makeText(
+                                requireContext(),
+                                errorResponse.message,
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+
+                        override fun onShowProgress() {
+                            showProgress()
+                        }
+
+                        override fun onHideProgress() {
+                            hideProgress()
+                        }
+
+                    })
+            }
+        }
+    }
+
     private fun validate() {
         lifecycleScope.launch {
             preferences.getUserPref.collect {
                 if (it.token.isEmpty()) {
                     return@collect
                 }
+                val requestTransactionDTO = RequestTransactionDTO()
+                requestTransactionDTO.transactionDTO = userViewModel.transactionLive.value!!
+                requestTransactionDTO.transactionDetails =
+                    userViewModel.transactionLive.value?.transactionDetails
+
+
 
                 transactionRepo.validateTransaction(
                     requireContext(),
-                    RequestTransactionDTO(),
+                    requestTransactionDTO,
                     it.token,
                     object : BaseNetworkCallback<TransactionDTO> {
                         override fun onSuccess(data: TransactionDTO) {
+                            requireActivity().findNavController(
+                                R.id.fragmentContainerView
+                            ).navigateUp()
                             RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
                         }
 

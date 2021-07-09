@@ -22,6 +22,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.core.data.DrugRepo
@@ -51,7 +53,7 @@ class RequestFragment : BottomSheetDialogFragment() {
 
     private val preferences: Preferences by inject()
 
-    private val userViewModel: UserViewModel by inject()
+    private val userViewModel: UserViewModel by sharedViewModel()
 
     private var drugs: List<DrugDTO> = emptyList()
 

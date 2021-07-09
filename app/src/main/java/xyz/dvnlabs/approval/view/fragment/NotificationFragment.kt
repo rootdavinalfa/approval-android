@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.NotificationRepo
@@ -37,7 +37,7 @@ class NotificationFragment : FragmentBase() {
 
     private val preferences: Preferences by inject()
 
-    private val userViewModel: UserViewModel by viewModel()
+    private val userViewModel: UserViewModel by sharedViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,7 +75,7 @@ class NotificationFragment : FragmentBase() {
                         token = it.token,
                         callback = object : BaseNetworkCallback<List<NotificationDTO>> {
                             override fun onSuccess(data: List<NotificationDTO>) {
-                                userViewModel.setUserNotification(data)
+                                userViewModel.setUserNotification(data.sortedByDescending { dt -> dt.createdDate })
                             }
 
                             override fun onFailed(errorResponse: ErrorResponse) {
