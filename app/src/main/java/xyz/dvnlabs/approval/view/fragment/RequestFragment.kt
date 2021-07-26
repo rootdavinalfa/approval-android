@@ -150,6 +150,7 @@ class RequestFragment : BottomSheetDialogFragment() {
                         it.token,
                         object : BaseNetworkCallback<RequestTransactionDTO> {
                             override fun onSuccess(data: RequestTransactionDTO) {
+                                userViewModel.clearUserSelectedDrug()
                                 RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
                                 this@RequestFragment.dismiss()
                             }

@@ -30,6 +30,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         userSelectedDrugFlow.value = newDrugs
     }
 
+    fun clearUserSelectedDrug(){
+        userSelectedDrugFlow.value = emptyList()
+    }
+
     private val transactionFlow: MutableStateFlow<TransactionDTO> =
         MutableStateFlow(TransactionDTO())
 

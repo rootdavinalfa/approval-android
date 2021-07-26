@@ -53,6 +53,13 @@ class GenericRetrofitCallback<T>(
                     )
                 }
             }
+            else -> {
+                response.errorBody()?.let {
+                    baseNetworkCallback.onFailed(
+                        Gson().fromJson(it.charStream(), ErrorResponse::class.java)
+                    )
+                }
+            }
         }
 
     }
