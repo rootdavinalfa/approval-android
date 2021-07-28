@@ -9,7 +9,6 @@ package xyz.dvnlabs.approval.base
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -21,7 +20,7 @@ import xyz.dvnlabs.approval.R
 open class FragmentBase : Fragment() {
     private val appBarConfig = AppBarConfiguration(setOf(R.id.menu_appbar))
     private lateinit var toolbar: Toolbar
-    private lateinit var include : View
+    private lateinit var include: View
 
     override fun onStart() {
         super.onStart()
@@ -48,11 +47,11 @@ open class FragmentBase : Fragment() {
         }
     }
 
-    fun showProgress(){
+    fun showProgress() {
         include.visibility = View.VISIBLE
     }
 
-    fun hideProgress(){
+    fun hideProgress() {
         include.visibility = View.GONE
     }
 

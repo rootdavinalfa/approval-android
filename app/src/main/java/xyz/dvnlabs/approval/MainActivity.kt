@@ -28,13 +28,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         lifecycleScope.launch {
-            if (localDB.userDAO().getAllUser()?.isNotEmpty() == true) {
-                val intent = Intent(this@MainActivity, MenuActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                startActivity(intent)
-            } else {
+            val eventIntent = intent.getStringExtra("EVENT")
+            if (eventIntent == "EVENT_PROFILE_ADD") {
                 setContentView(activityMainBinding.root)
                 initView()
+            } else {
+                if (localDB.userDAO().getAllUser()?.isNotEmpty() == true) {
+                    val intent = Intent(this@MainActivity, MenuActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                } else {
+                    setContentView(activityMainBinding.root)
+                    initView()
+                }
             }
         }
     }

@@ -20,15 +20,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.TransactionRepo
 import xyz.dvnlabs.approval.core.data.UserRepo
-import xyz.dvnlabs.approval.core.event.RefreshAction
-import xyz.dvnlabs.approval.core.event.RxBus
-import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.core.util.Page
 import xyz.dvnlabs.approval.core.util.Pageable
@@ -66,9 +62,21 @@ class DashboardFragment : FragmentBase() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        networkFetch()
+        viewAction()
+
+    }
+
+    private fun resetView() {
+        binding.dashboardVgudang.visibility = View.GONE
+        binding.dashboardApotik.visibility = View.GONE
+    }
+
+    private fun networkFetch() {
         lifecycleScope.launch {
             preferences.getUserPref.collect {
                 if (it.token.isNotEmpty()) {
+                    // Get profile from API
                     userRepo.getProfile(
                         token = it.token,
                         userName = it.userName,
@@ -93,26 +101,12 @@ class DashboardFragment : FragmentBase() {
 
                         }
                     )
-                }
-            }
-        }
-        networkFetch()
-        viewAction()
-        RxBus.listen(RefreshAction::class.java)
-            .subscribe {
-                if (it.where == TargetAction.FRAGMENT_DASHBOARD) {
-                    networkFetch()
-                }
-            }
-    }
 
-    private fun networkFetch() {
-        lifecycleScope.launch {
-            preferences.getUserPref.collect {
-                if (it.token.isNotEmpty()) {
-                    mainViewModel.userData.distinctUntilChanged()
+                    // Watch
+                    mainViewModel.userData
                         .observe(viewLifecycleOwner, { user ->
                             if (user.id.isNotEmpty()) {
+                                resetView()
                                 binding.dashboardTextUsername.text = user.userName
                                 if (RolePicker
                                         .isUserHave("ROLE_APOTIK", user.roles)
@@ -298,6 +292,13 @@ class DashboardFragment : FragmentBase() {
             val navController = requireActivity().findNavController(R.id.fragmentContainerView)
             navController.navigate(R.id.notificationFragment)
 
+        }
+
+        binding.dashboardTextUsername.setOnClickListener {
+            ProfileSelectorFragment().show(
+                requireActivity().supportFragmentManager,
+                "PROFILE_SELECTOR_FRAGMENT"
+            )
         }
     }
 

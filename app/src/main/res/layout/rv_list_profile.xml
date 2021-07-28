@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2021.
+  ~ Davin Alfarizky Putra Basudewa
+  ~ Reference or Educational Purposes Only
+  ~ Skripshit Client
+  -->
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:layout_margin="4dp"
+    app:contentPadding="4dp">
+
+    <TextView
+        android:id="@+id/rv_listprofile_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="{{Username}}"
+        android:textColor="@color/primaryDarkColor"
+        android:textSize="@dimen/font_head1" />
+
+</com.google.android.material.card.MaterialCardView>

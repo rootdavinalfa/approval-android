@@ -183,10 +183,20 @@ class DetailTrxFragment : FragmentBase() {
                 if (RolePicker
                         .isUserHave("ROLE_VGUDANG", user.roles)
                 ) {
-                    validate()
+                    userViewModel.transactionLive.value?.let {
+                        when (it.statusFlag) {
+                            "1" -> {
+                                validate()
+                            }
+                            "2" -> {
+                                RequestFragment().show(requireActivity().supportFragmentManager, "ATTACH_DELIVERY_FRAGMENT")
+                            }
+                        }
+                    }
                 } else if (RolePicker
                         .isUserHave("ROLE_GUDANG", user.roles)
                 ) {
+                    // Currently Nothing to do
                 }
             }
 
