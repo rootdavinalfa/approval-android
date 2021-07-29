@@ -11,11 +11,23 @@ import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.component.KoinComponent
+import xyz.dvnlabs.approval.core.data.local.User
 import xyz.dvnlabs.approval.model.TransactionDTO
 import xyz.dvnlabs.approval.model.UserNoPassword
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+
+    private val currentUserFlow : MutableStateFlow<User> =
+        MutableStateFlow(User())
+
+    val currentUser : LiveData<User> = currentUserFlow
+        .asLiveData(viewModelScope.coroutineContext)
+        .distinctUntilChanged()
+
+    fun setCurrentUser(user : User) {
+        currentUserFlow.value = user
+    }
 
     private val userDataFlow: MutableStateFlow<UserNoPassword> =
         MutableStateFlow(UserNoPassword())

@@ -8,10 +8,7 @@
 package xyz.dvnlabs.approval.core.data.remote
 
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 import xyz.dvnlabs.approval.core.Constant
 import xyz.dvnlabs.approval.model.LoginRequest
 import xyz.dvnlabs.approval.model.LoginResponse
@@ -23,4 +20,11 @@ interface AuthAPI {
 
     @GET("${Constant.USER_URL}username/{username}")
     fun getUser(@Path("username") username: String): Call<UserNoPassword>
+
+    @GET("${Constant.USER_URL}list")
+    fun getUserList(
+        @Query("userName") userName: String,
+        @Query("roleName") roleName: String
+    ): Call<List<UserNoPassword>>
+
 }

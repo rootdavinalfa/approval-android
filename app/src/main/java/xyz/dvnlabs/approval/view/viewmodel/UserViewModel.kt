@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import xyz.dvnlabs.approval.model.DrugDTO
 import xyz.dvnlabs.approval.model.NotificationDTO
 import xyz.dvnlabs.approval.model.TransactionDTO
+import xyz.dvnlabs.approval.model.UserNoPassword
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -30,7 +31,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         userSelectedDrugFlow.value = newDrugs
     }
 
-    fun clearUserSelectedDrug(){
+    fun clearUserSelectedDrug() {
         userSelectedDrugFlow.value = emptyList()
     }
 
@@ -57,5 +58,15 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         userNotificationFlow.value = notifications
     }
 
+    private val userListFlow: MutableStateFlow<List<UserNoPassword>> =
+        MutableStateFlow(ArrayList())
+
+    val userList: LiveData<List<UserNoPassword>> =
+        userListFlow.asLiveData(viewModelScope.coroutineContext)
+            .distinctUntilChanged()
+
+    fun setUserList(users: List<UserNoPassword>) {
+        userListFlow.value = users
+    }
 
 }

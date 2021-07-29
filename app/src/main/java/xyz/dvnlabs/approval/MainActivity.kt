@@ -29,17 +29,24 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         lifecycleScope.launch {
             val eventIntent = intent.getStringExtra("EVENT")
-            if (eventIntent == "EVENT_PROFILE_ADD") {
-                setContentView(activityMainBinding.root)
-                initView()
-            } else {
-                if (localDB.userDAO().getAllUser()?.isNotEmpty() == true) {
-                    val intent = Intent(this@MainActivity, MenuActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    startActivity(intent)
-                } else {
+            when (eventIntent) {
+                "EVENT_PROFILE_ADD" -> {
                     setContentView(activityMainBinding.root)
                     initView()
+                }
+                "EVENT_PROFILE_UNAUTHORIZED" -> {
+                    setContentView(activityMainBinding.root)
+                    initView()
+                }
+                else -> {
+                    if (localDB.userDAO().getAllUser()?.isNotEmpty() == true) {
+                        val intent = Intent(this@MainActivity, MenuActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(intent)
+                    } else {
+                        setContentView(activityMainBinding.root)
+                        initView()
+                    }
                 }
             }
         }

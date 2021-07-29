@@ -8,18 +8,11 @@
 package xyz.dvnlabs.approval.core.data
 
 import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.lastOrNull
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.core.Constant
 import xyz.dvnlabs.approval.core.data.remote.ApiService
 import xyz.dvnlabs.approval.core.data.remote.AuthAPI
 import xyz.dvnlabs.approval.core.data.remote.GenericRetrofitCallback
-import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.model.LoginRequest
 import xyz.dvnlabs.approval.model.LoginResponse
 import xyz.dvnlabs.approval.model.UserNoPassword
@@ -52,6 +45,19 @@ class UserRepo {
             .getUser(userName)
         call.enqueue(GenericRetrofitCallback(callback))
 
+    }
+
+    fun listUser(
+        context: Context,
+        token: String = "",
+        userName: String = "",
+        roleName: String = "",
+        callback: BaseNetworkCallback<List<UserNoPassword>>
+    ) {
+        callback.onShowProgress()
+        val call = ApiService.getClient(context, baseURL, token).create(AuthAPI::class.java)
+            .getUserList(userName, roleName)
+        call.enqueue(GenericRetrofitCallback(callback))
     }
 
 }

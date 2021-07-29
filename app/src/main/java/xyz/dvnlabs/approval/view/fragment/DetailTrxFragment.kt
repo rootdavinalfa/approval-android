@@ -12,12 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import xyz.dvnlabs.approval.R
@@ -28,7 +25,6 @@ import xyz.dvnlabs.approval.core.data.TransactionRepo
 import xyz.dvnlabs.approval.core.event.RefreshAction
 import xyz.dvnlabs.approval.core.event.RxBus
 import xyz.dvnlabs.approval.core.event.TargetAction
-import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.core.util.RolePicker
 import xyz.dvnlabs.approval.core.util.mapStatusDetailTrx
 import xyz.dvnlabs.approval.core.util.mapStatusTrx
@@ -48,8 +44,6 @@ class DetailTrxFragment : FragmentBase() {
 
     private var fragmentDetailTrxFragment: FragmentDetailTrxBinding? = null
     private val binding get() = fragmentDetailTrxFragment!!
-
-    private val preferences: Preferences by inject()
 
     private val transactionRepo: TransactionRepo by inject()
 
@@ -78,67 +72,65 @@ class DetailTrxFragment : FragmentBase() {
     }
 
     private fun networkFetch() {
-        lifecycleScope.launch {
-            preferences.getUserPref.collect {
-                if (it.token.isNotEmpty()) {
-                    transactionRepo.getById(
-                        idTransaction,
-                        requireContext(),
-                        it.token,
-                        object : BaseNetworkCallback<TransactionDTO> {
-                            override fun onSuccess(data: TransactionDTO) {
-                                userViewModel.setTransaction(data)
-                            }
-
-                            override fun onFailed(errorResponse: ErrorResponse) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    errorResponse.message,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-
-                            override fun onShowProgress() {
-                                showProgress()
-                            }
-
-                            override fun onHideProgress() {
-                                hideProgress()
-                            }
-
-                        })
-
-                    notificationRepo.getList(
-                        idTransaction = idTransaction,
-                        context = requireContext(),
-                        token = it.token,
-                        callback = object : BaseNetworkCallback<List<NotificationDTO>> {
-                            override fun onSuccess(data: List<NotificationDTO>) {
-                                userViewModel.setUserNotification(data.sortedByDescending { dt -> dt.createdDate })
-                            }
-
-                            override fun onFailed(errorResponse: ErrorResponse) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    errorResponse.message,
-                                    Toast.LENGTH_LONG
-                                )
-                                    .show()
-                            }
-
-                            override fun onShowProgress() {
-                                showProgress()
-                            }
-
-                            override fun onHideProgress() {
-                                hideProgress()
-                            }
+        mainViewModel.currentUser.observe(viewLifecycleOwner, {
+            if (it.token.isNotEmpty()) {
+                transactionRepo.getById(
+                    idTransaction,
+                    requireContext(),
+                    it.token,
+                    object : BaseNetworkCallback<TransactionDTO> {
+                        override fun onSuccess(data: TransactionDTO) {
+                            userViewModel.setTransaction(data)
                         }
-                    )
 
-                }
+                        override fun onFailed(errorResponse: ErrorResponse) {
+                            Toast.makeText(
+                                requireContext(),
+                                errorResponse.message,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        override fun onShowProgress() {
+                            showProgress()
+                        }
+
+                        override fun onHideProgress() {
+                            hideProgress()
+                        }
+
+                    })
+
+                notificationRepo.getList(
+                    idTransaction = idTransaction,
+                    context = requireContext(),
+                    token = it.token,
+                    callback = object : BaseNetworkCallback<List<NotificationDTO>> {
+                        override fun onSuccess(data: List<NotificationDTO>) {
+                            userViewModel.setUserNotification(data.sortedByDescending { dt -> dt.createdDate })
+                        }
+
+                        override fun onFailed(errorResponse: ErrorResponse) {
+                            Toast.makeText(
+                                requireContext(),
+                                errorResponse.message,
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+
+                        override fun onShowProgress() {
+                            showProgress()
+                        }
+
+                        override fun onHideProgress() {
+                            hideProgress()
+                        }
+                    }
+                )
+
             }
-        }
+        })
     }
 
     private fun initView() {
@@ -146,6 +138,11 @@ class DetailTrxFragment : FragmentBase() {
         binding.detailListObat.layoutManager = LinearLayoutManager(requireContext())
         binding.detailListObat.adapter = adapter
         userViewModel.transactionLive.observe(viewLifecycleOwner, {
+            if (it.statusFlag == "5") {
+                binding.detailButtonCancel.isEnabled = false
+                binding.detailButtonAction.isEnabled = false
+            }
+
             it?.transactionDetails?.forEach { td ->
                 td.drug?.qty = td.qty
             }
@@ -163,6 +160,12 @@ class DetailTrxFragment : FragmentBase() {
             }
 
             if (RolePicker.isUserHave(
+                    "ROLE_ADMIN", user.roles
+                )
+            ) {
+                binding.detailButtonCancel.isEnabled = true
+                binding.detailButtonAction.isEnabled = true
+            } else if (RolePicker.isUserHave(
                     "ROLE_APOTIK", user.roles
                 )
             ) {
@@ -189,7 +192,10 @@ class DetailTrxFragment : FragmentBase() {
                                 validate()
                             }
                             "2" -> {
-                                RequestFragment().show(requireActivity().supportFragmentManager, "ATTACH_DELIVERY_FRAGMENT")
+                                DeliveryFragment().show(
+                                    requireActivity().supportFragmentManager,
+                                    "ATTACH_DELIVERY_FRAGMENT"
+                                )
                             }
                         }
                     }
@@ -215,93 +221,87 @@ class DetailTrxFragment : FragmentBase() {
     }
 
     private fun cancelTrx() {
-        lifecycleScope.launch {
-            preferences.getUserPref.collect {
-                if (it.token.isEmpty()) {
-                    return@collect
-                }
-                transactionRepo.cancelTransaction(
-                    idTransaction,
-                    requireContext(),
-                    it.token,
-                    object : BaseNetworkCallback<Void> {
-                        override fun onSuccess(data: Void) {
-                            requireActivity().onBackPressed()
-                            //RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
-                        }
-
-                        override fun onFailed(errorResponse: ErrorResponse) {
-                            Toast.makeText(
-                                requireContext(),
-                                errorResponse.message,
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
-                        }
-
-                        override fun onShowProgress() {
-                            showProgress()
-                        }
-
-                        override fun onHideProgress() {
-                            hideProgress()
-                        }
-
-                    })
+        mainViewModel.currentUser.observe(viewLifecycleOwner, {
+            if (it.token.isEmpty()) {
+                return@observe
             }
-        }
+
+            transactionRepo.cancelTransaction(
+                idTransaction,
+                requireContext(),
+                it.token,
+                object : BaseNetworkCallback<Void> {
+                    override fun onSuccess(data: Void) {
+                        requireActivity().onBackPressed()
+                        //RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
+                    }
+
+                    override fun onFailed(errorResponse: ErrorResponse) {
+                        Toast.makeText(
+                            requireContext(),
+                            errorResponse.message,
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                    }
+
+                    override fun onShowProgress() {
+                        showProgress()
+                    }
+
+                    override fun onHideProgress() {
+                        hideProgress()
+                    }
+
+                })
+        })
     }
 
     private fun validate() {
-        lifecycleScope.launch {
-            preferences.getUserPref.collect {
-                if (it.token.isEmpty()) {
-                    return@collect
-                }
-                val requestTransactionDTO = RequestTransactionDTO()
-                requestTransactionDTO.transactionDTO = userViewModel.transactionLive.value!!
-                requestTransactionDTO.transactionDetails =
-                    userViewModel.transactionLive.value?.transactionDetails
-
-
-
-                transactionRepo.validateTransaction(
-                    requireContext(),
-                    requestTransactionDTO,
-                    it.token,
-                    object : BaseNetworkCallback<TransactionDTO> {
-                        override fun onSuccess(data: TransactionDTO) {
-                            requireActivity().findNavController(
-                                R.id.fragmentContainerView
-                            ).navigateUp()
-                            RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
-                        }
-
-                        override fun onFailed(errorResponse: ErrorResponse) {
-                            Toast.makeText(
-                                requireContext(),
-                                errorResponse.message,
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
-                        }
-
-                        override fun onShowProgress() {
-                            showProgress()
-                        }
-
-                        override fun onHideProgress() {
-                            hideProgress()
-                        }
-
-                    }
-                )
+        val currentUser = mainViewModel.currentUser.value
+        currentUser?.let {
+            if (it.token.isEmpty()) {
+                return@let
             }
+            val requestTransactionDTO = RequestTransactionDTO()
+            requestTransactionDTO.transactionDTO = userViewModel.transactionLive.value!!
+            requestTransactionDTO.transactionDetails =
+                userViewModel.transactionLive.value?.transactionDetails
+
+
+
+            transactionRepo.validateTransaction(
+                requireContext(),
+                requestTransactionDTO,
+                it.token,
+                object : BaseNetworkCallback<TransactionDTO> {
+                    override fun onSuccess(data: TransactionDTO) {
+                        requireActivity().findNavController(
+                            R.id.fragmentContainerView
+                        ).navigateUp()
+                        //RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
+                    }
+
+                    override fun onFailed(errorResponse: ErrorResponse) {
+                        Toast.makeText(
+                            requireContext(),
+                            errorResponse.message,
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                    }
+
+                    override fun onShowProgress() {
+                        showProgress()
+                    }
+
+                    override fun onHideProgress() {
+                        hideProgress()
+                    }
+
+                }
+            )
         }
-    }
-
-    private fun delivery() {
-
     }
 
     override fun onDestroyView() {

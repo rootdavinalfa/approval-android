@@ -41,6 +41,7 @@ open class BaseFragmentActivity : FragmentActivity() {
                 if (user == null) {
                     val intent = Intent(this@BaseFragmentActivity, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    intent.putExtra("EVENT","EVENT_PROFILE_UNAUTHORIZED")
                     startActivity(intent)
                 }
             }
