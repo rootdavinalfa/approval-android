@@ -10,5 +10,6 @@ package xyz.dvnlabs.approval.model
 data class LoginResponse(
     var token: String,
     var username: String,
-    var authToken: String
+    var authToken: String,
+    var authorities: List<Role>? = null
 )

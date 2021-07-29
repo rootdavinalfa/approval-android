@@ -9,5 +9,6 @@ package xyz.dvnlabs.approval.model
 
 data class Role(
     var id: Int = 0,
-    var roleName: String = ""
+    var roleName: String = "",
+    var authority: String = ""
 )

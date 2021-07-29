@@ -11,7 +11,7 @@ import java.util.*
 
 open class AuditDTO(
     var createdBy: String = "",
-    var createdDate: Date = Date(),
+    var createdDate: Date? = null,
     var lastModifiedBy: String = "",
-    var lastModifiedDate: Date = Date(),
+    var lastModifiedDate: Date? = null,
 )
