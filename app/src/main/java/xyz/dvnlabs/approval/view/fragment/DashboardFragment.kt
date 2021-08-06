@@ -12,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -68,7 +67,7 @@ class DashboardFragment : FragmentBase() {
         networkFetch()
         RxBus.listen(RefreshAction::class.java)
             .subscribe {
-                if (it.where == TargetAction.FRAGMENT_DASHBOARD){
+                if (it.where == TargetAction.FRAGMENT_DASHBOARD) {
                     networkFetch()
                 }
             }
@@ -80,6 +79,7 @@ class DashboardFragment : FragmentBase() {
         binding.dashboardButtonAdd.visibility = View.VISIBLE
         binding.dashboardVgudang.visibility = View.GONE
         binding.dashboardApotik.visibility = View.GONE
+        binding.dashboardGudang.visibility = View.GONE
     }
 
     private fun networkFetch() {
@@ -125,15 +125,20 @@ class DashboardFragment : FragmentBase() {
                                 ) {
                                     fetchApotik(it.token, it.userName)
                                     viewApotik()
-                                }
-
-                                if (RolePicker
+                                } else if (RolePicker
                                         .isUserHave("ROLE_VGUDANG", user.roles)
                                 ) {
                                     binding.dashboardButtonAdd.visibility = View.GONE
-                                    fetchGudang(it.token, it.userName)
+                                    fetchVGudang(it.token, it.userName)
                                     viewVGudang()
+                                } else if (RolePicker
+                                        .isUserHave("ROLE_GUDANG", user.roles)) {
+                                    binding.dashboardButtonAdd.visibility = View.GONE
+                                    fetchGudang(it.token, it.userName)
+                                    viewGudang()
                                 }
+
+
                                 if (RolePicker.isNotFound(
                                         listOf(
                                             "ROLE_APOTIK",
@@ -145,7 +150,7 @@ class DashboardFragment : FragmentBase() {
                                 ) {
                                     fetchApotik(it.token, it.userName)
                                     viewApotik()
-                                    fetchGudang(it.token, it.userName)
+                                    fetchVGudang(it.token, it.userName)
                                     viewVGudang()
                                 }
                             }
@@ -225,7 +230,7 @@ class DashboardFragment : FragmentBase() {
         )
     }
 
-    private fun fetchGudang(token: String, username: String) {
+    private fun fetchVGudang(token: String, username: String) {
         transactionRepo.getPage(
             statusFlagIn = "1",
             pageable = Pageable()
@@ -272,6 +277,42 @@ class DashboardFragment : FragmentBase() {
             callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
                 override fun onSuccess(data: Page<TransactionDTO>) {
                     mainViewModel.setTransactionDeliver(data.content)
+                }
+
+                override fun onFailed(errorResponse: ErrorResponse) {
+                    Toast.makeText(
+                        requireContext(),
+                        errorResponse.error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                override fun onShowProgress() {
+                    showProgress()
+                }
+
+                override fun onHideProgress() {
+                    hideProgress()
+                }
+
+            }
+        )
+    }
+
+    private fun fetchGudang(token: String, username: String) {
+
+        // Must Delivered
+        transactionRepo.getPage(
+            statusFlagIn = "3",
+            pageable = Pageable()
+                .pageRequest(size = 5)
+                .sortRequest("createdDate", Pageable.SORT_DIRECTION.DESC)
+                .build(),
+            context = requireContext(),
+            token = token,
+            callback = object : BaseNetworkCallback<Page<TransactionDTO>> {
+                override fun onSuccess(data: Page<TransactionDTO>) {
+                    mainViewModel.setTransactionMustDelivered(data.content)
                 }
 
                 override fun onFailed(errorResponse: ErrorResponse) {
@@ -358,6 +399,19 @@ class DashboardFragment : FragmentBase() {
             adapterDeliver.setData(it)
         })
 
+    }
+
+    private fun viewGudang() {
+        binding.dashboardGudang.visibility = View.VISIBLE
+
+        val adapterValidate = RvListTrx(requireContext())
+        binding.dashboardListtrxLayoutGudang.listtrxMustdelivered.layoutManager =
+            LinearLayoutManager(requireContext())
+        binding.dashboardListtrxLayoutGudang.listtrxMustdelivered.adapter = adapterValidate
+
+        mainViewModel.transactionMustDelivered.observe(viewLifecycleOwner, {
+            adapterValidate.setData(it)
+        })
 
     }
 
