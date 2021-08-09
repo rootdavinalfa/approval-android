@@ -22,9 +22,6 @@ import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.NotificationRepo
 import xyz.dvnlabs.approval.core.data.TransactionRepo
-import xyz.dvnlabs.approval.core.event.RefreshAction
-import xyz.dvnlabs.approval.core.event.RxBus
-import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.util.RolePicker
 import xyz.dvnlabs.approval.core.util.mapStatusDetailTrx
 import xyz.dvnlabs.approval.core.util.mapStatusTrx
@@ -170,7 +167,7 @@ class DetailTrxFragment : FragmentBase() {
                 )
             ) {
                 binding.detailButtonCancel.isEnabled = true
-                binding.detailButtonAction.isEnabled = false
+                binding.detailButtonAction.isEnabled = true
             } else if (RolePicker.isUserHave(
                     "ROLE_VGUDANG", user.roles
                 )
@@ -200,9 +197,9 @@ class DetailTrxFragment : FragmentBase() {
                         }
                     }
                 } else if (RolePicker
-                        .isUserHave("ROLE_GUDANG", user.roles)
+                        .isUserHave("ROLE_APOTIK", user.roles)
                 ) {
-                    // Currently Nothing to do
+                    delivered()
                 }
             }
 
@@ -301,6 +298,47 @@ class DetailTrxFragment : FragmentBase() {
 
                 }
             )
+        }
+    }
+
+    fun delivered() {
+        val currentUser = mainViewModel.currentUser.value
+        currentUser?.let {
+            if (it.token.isEmpty()) {
+                return@let
+            }
+            userViewModel.transactionLive.value?.let { trx ->
+                transactionRepo.delivered(
+                    trx.idTransaction,
+                    requireContext(),
+                    it.token,
+                    object : BaseNetworkCallback<Void> {
+                        override fun onSuccess(data: Void) {
+                            requireActivity().findNavController(
+                                R.id.fragmentContainerView
+                            ).navigateUp()
+                        }
+
+                        override fun onFailed(errorResponse: ErrorResponse) {
+                            Toast.makeText(
+                                requireContext(),
+                                errorResponse.message,
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+
+                        override fun onShowProgress() {
+                            showProgress()
+                        }
+
+                        override fun onHideProgress() {
+                            hideProgress()
+                        }
+
+                    })
+            }
+
         }
     }
 

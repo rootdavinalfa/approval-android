@@ -21,6 +21,8 @@ interface TransactionAPI {
     @PUT("${Constant.TRANSACTION_URL}cancel/{id}")
     fun cancelTransaction(@Path("id") id: Long): Call<Void>
 
+    @PUT("${Constant.TRANSACTION_URL}delivered/{id}")
+    fun deliveredTransaction(@Path("id") id: Long): Call<Void>
 
     @PUT("${Constant.TRANSACTION_URL}validate")
     fun validateTransaction(@Body createTransactionDTO: RequestTransactionDTO): Call<TransactionDTO>

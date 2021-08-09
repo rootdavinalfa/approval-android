@@ -110,9 +110,21 @@ class TransactionRepo {
     ) {
         callback.onShowProgress()
         val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
-            .attachDeliveryTransaction(idTrx,idUser)
+            .attachDeliveryTransaction(idTrx, idUser)
         call.enqueue(GenericRetrofitCallback(callback))
 
+    }
+
+    fun delivered(
+        idTrx: Long,
+        context: Context,
+        token: String,
+        callback: BaseNetworkCallback<Void>
+    ) {
+        callback.onShowProgress()
+        val call = ApiService.getClient(context, baseURL, token).create(TransactionAPI::class.java)
+            .deliveredTransaction(idTrx)
+        call.enqueue(GenericRetrofitCallback(callback))
     }
 
 
