@@ -167,7 +167,7 @@ class DetailTrxFragment : FragmentBase() {
                 )
             ) {
                 binding.detailButtonCancel.isEnabled = true
-                binding.detailButtonAction.isEnabled = true
+                binding.detailButtonAction.isEnabled = false
             } else if (RolePicker.isUserHave(
                     "ROLE_VGUDANG", user.roles
                 )
@@ -177,6 +177,13 @@ class DetailTrxFragment : FragmentBase() {
             } else {
                 binding.detailButtonCancel.isEnabled = false
                 binding.detailButtonAction.isEnabled = false
+            }
+
+            userViewModel.transactionLive.value?.let {
+                if (it.statusFlag == "5" || it.statusFlag == "4") {
+                    binding.detailButtonAction.isEnabled = false
+                    binding.detailButtonCancel.isEnabled = false
+                }
             }
 
             binding.detailButtonAction.setOnClickListener {
@@ -229,8 +236,9 @@ class DetailTrxFragment : FragmentBase() {
                 it.token,
                 object : BaseNetworkCallback<Void> {
                     override fun onSuccess(data: Void) {
-                        requireActivity().onBackPressed()
-                        //RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
+                        requireActivity().findNavController(
+                            R.id.fragmentContainerView
+                        ).navigateUp()
                     }
 
                     override fun onFailed(errorResponse: ErrorResponse) {
@@ -301,7 +309,7 @@ class DetailTrxFragment : FragmentBase() {
         }
     }
 
-    fun delivered() {
+    private fun delivered() {
         val currentUser = mainViewModel.currentUser.value
         currentUser?.let {
             if (it.token.isEmpty()) {
