@@ -13,12 +13,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [User::class],
+    entities = [User::class, Notification::class],
     version = 1
 )
 abstract class LocalDB : RoomDatabase() {
 
     abstract fun userDAO(): UserDAO
+    abstract fun notificationDAO(): NotificationDAO
 
     companion object {
         @Volatile
