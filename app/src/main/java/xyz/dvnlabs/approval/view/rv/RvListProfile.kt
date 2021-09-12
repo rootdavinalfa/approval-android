@@ -18,6 +18,7 @@ import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import xyz.dvnlabs.approval.core.data.local.User
+import xyz.dvnlabs.approval.core.notification.NotificationAPI
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.core.util.ItemDiff
 import xyz.dvnlabs.approval.databinding.RvListProfileBinding
@@ -70,6 +71,7 @@ class RvListProfile(val context: Context) :
             user?.let {
                 GlobalScope.async {
                     preferences.savePreference(it)
+                    NotificationAPI.service?.changedToken()
                 }
             }
         }

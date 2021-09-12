@@ -23,8 +23,8 @@ interface NotificationDAO {
     @Query(
         "UPDATE Notification SET flag = '1' WHERE receivedUser = :user AND idNotification = :idNotification"
     )
-    suspend fun notificationRead(user: String, idNotification: String)
+    suspend fun notificationRead(user: String, idNotification: Long)
 
     @Query("SELECT EXISTS(SELECT * FROM Notification WHERE receivedUser = :user AND idNotification = :idNotification)")
-    suspend fun isExist(user: String, idNotification: String): Boolean
+    suspend fun isExist(user: String, idNotification: Long): Boolean
 }

@@ -14,4 +14,6 @@ object Constant {
     const val DRUGS_URL = "drugs/"
     const val TRANSACTION_URL = "transaction/"
     const val NOTIFICATION_URL = "notification/"
+    const val BASE_URL_WEBSOCKET = "ws://srv.dvnlabs.xyz:8080/live/websocket"
+    const val NOTIFICATION_SUBSCRIBE_URL = "/user/queue/notification"
 }

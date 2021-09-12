@@ -66,6 +66,9 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
+
 
     def nav_version = "2.3.5"
     // Kotlin Navigation
@@ -95,7 +98,8 @@ dependencies {
     implementation "io.insert-koin:koin-android:$koin_version"
 
     // Websocket
-    implementation "com.tinder.scarlet:scarlet:0.1.12"
+    implementation 'com.github.NaikSoftware:StompProtocolAndroid:1.6.6'
+
 
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
@@ -112,6 +116,8 @@ dependencies {
     //RxKotlin
     implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation "io.reactivex.rxjava2:rxjava:2.2.21"
+    implementation "com.github.akarnokd:rxjava3-bridge:3.0.0"
 
     implementation 'com.jaredrummler:material-spinner:1.3.1'
 

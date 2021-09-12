@@ -73,7 +73,7 @@
                 android:id="@+id/main_textf_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="davinalfa123"
+                android:text="123456"
                 android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>

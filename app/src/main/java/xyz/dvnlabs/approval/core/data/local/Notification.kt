@@ -8,11 +8,14 @@
 package xyz.dvnlabs.approval.core.data.local
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
 @Entity(tableName = "Notification")
 data class Notification(
-    var idNotification: String = "",
+    @PrimaryKey(autoGenerate = true)
+    var idNotification: Long = 0,
+    var idNotificationServer : String = "",
     var receivedUser: String = "",
     var body: String = "",
     var sender: String = "",
@@ -26,6 +29,6 @@ data class Notification(
      */
     var flag: String = "0",
     var idTransaction: Long = 0,
-    var receivedOn: Date = Date()
+    var receivedOn: Long = Date().time
 
 )

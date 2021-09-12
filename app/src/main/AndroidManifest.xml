@@ -16,9 +16,9 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Approval"
         tools:targetApi="n">
         <activity android:name=".MainActivity">
@@ -31,6 +31,8 @@
         <activity android:name=".view.activity.MenuActivity">
 
         </activity>
+
+        <service android:name=".core.notification.NotificationService" />
     </application>
 
 </manifest>
