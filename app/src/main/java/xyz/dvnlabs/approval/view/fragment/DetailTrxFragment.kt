@@ -130,15 +130,17 @@ class DetailTrxFragment : FragmentBase() {
         })
     }
 
+    private fun resetView() {
+        binding.detailButtonAction.isEnabled = false
+        binding.detailButtonCancel.isEnabled = false
+    }
+
     private fun initView() {
         val adapter = RvListDrug(requireContext())
         binding.detailListObat.layoutManager = LinearLayoutManager(requireContext())
         binding.detailListObat.adapter = adapter
         userViewModel.transactionLive.observe(viewLifecycleOwner, {
-            if (it.statusFlag == "5") {
-                binding.detailButtonCancel.isEnabled = false
-                binding.detailButtonAction.isEnabled = false
-            }
+            resetView()
 
             it?.transactionDetails?.forEach { td ->
                 td.drug?.qty = td.qty
@@ -150,66 +152,78 @@ class DetailTrxFragment : FragmentBase() {
             binding.detailTextId.text = "Transaction ID: ${it.idTransaction}"
             binding.detailTextStatus.text = it.statusFlag.mapStatusTrx()
             binding.detailButtonAction.text = it.statusFlag.mapStatusDetailTrx()
-        })
-        mainViewModel.userData.observe(viewLifecycleOwner, { user ->
-            if (user.id.isEmpty()) {
-                return@observe
-            }
 
-            if (RolePicker.isUserHave(
-                    "ROLE_ADMIN", user.roles
-                )
-            ) {
-                binding.detailButtonCancel.isEnabled = true
-                binding.detailButtonAction.isEnabled = true
-            } else if (RolePicker.isUserHave(
-                    "ROLE_APOTIK", user.roles
-                )
-            ) {
-                binding.detailButtonCancel.isEnabled = true
-                binding.detailButtonAction.isEnabled = false
-            } else if (RolePicker.isUserHave(
-                    "ROLE_VGUDANG", user.roles
-                )
-            ) {
-                binding.detailButtonCancel.isEnabled = false
-                binding.detailButtonAction.isEnabled = true
-            } else {
-                binding.detailButtonCancel.isEnabled = false
-                binding.detailButtonAction.isEnabled = false
-            }
+            mainViewModel.userData.value?.let { user ->
 
-            userViewModel.transactionLive.value?.let {
-                if (it.statusFlag == "5" || it.statusFlag == "4") {
-                    binding.detailButtonAction.isEnabled = false
-                    binding.detailButtonCancel.isEnabled = false
-                }
-            }
-
-            binding.detailButtonAction.setOnClickListener {
-                if (RolePicker
-                        .isUserHave("ROLE_VGUDANG", user.roles)
-                ) {
-                    userViewModel.transactionLive.value?.let {
-                        when (it.statusFlag) {
-                            "1" -> {
-                                validate()
-                            }
-                            "2" -> {
-                                DeliveryFragment().show(
-                                    requireActivity().supportFragmentManager,
-                                    "ATTACH_DELIVERY_FRAGMENT"
-                                )
-                            }
+                when (it.statusFlag) {
+                    "1", "2" -> {
+                        if (RolePicker.isUserHave(
+                                "ROLE_ADMIN", user.roles
+                            )
+                        ) {
+                            binding.detailButtonCancel.isEnabled = true
+                            binding.detailButtonAction.isEnabled = true
+                        } else if (RolePicker.isUserHave(
+                                "ROLE_APOTIK", user.roles
+                            )
+                        ) {
+                            binding.detailButtonCancel.isEnabled = true
+                            binding.detailButtonAction.isEnabled = false
+                        } else if (RolePicker.isUserHave(
+                                "ROLE_VGUDANG", user.roles
+                            )
+                        ) {
+                            binding.detailButtonCancel.isEnabled = false
+                            binding.detailButtonAction.isEnabled = true
                         }
                     }
-                } else if (RolePicker
-                        .isUserHave("ROLE_APOTIK", user.roles)
-                ) {
-                    delivered()
+                    "3" -> {
+                        if (RolePicker.isUserHave(
+                                "ROLE_ADMIN", user.roles
+                            )
+                        ) {
+                            binding.detailButtonCancel.isEnabled = true
+                            binding.detailButtonAction.isEnabled = true
+                        } else if (RolePicker.isUserHave(
+                                "ROLE_APOTIK", user.roles
+                            )
+                        ) {
+                            binding.detailButtonCancel.isEnabled = true
+                            binding.detailButtonAction.isEnabled = true
+                        }
+                    }
+                    else -> {
+                        binding.detailButtonCancel.isEnabled = false
+                        binding.detailButtonAction.isEnabled = false
+                    }
                 }
-            }
 
+
+                binding.detailButtonAction.setOnClickListener {
+                    if (RolePicker
+                            .isUserHaves(listOf("ROLE_VGUDANG", "ROLE_ADMIN"), user.roles)
+                    ) {
+                        userViewModel.transactionLive.value?.let {
+                            when (it.statusFlag) {
+                                "1" -> {
+                                    validate()
+                                }
+                                "2" -> {
+                                    DeliveryFragment().show(
+                                        requireActivity().supportFragmentManager,
+                                        "ATTACH_DELIVERY_FRAGMENT"
+                                    )
+                                }
+                            }
+                        }
+                    } else if (RolePicker
+                            .isUserHave("ROLE_APOTIK", user.roles)
+                    ) {
+                        delivered()
+                    }
+                }
+
+            }
         })
 
         binding.detailButtonCancel.setOnClickListener {

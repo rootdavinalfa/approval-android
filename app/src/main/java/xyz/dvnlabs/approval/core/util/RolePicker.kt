@@ -27,6 +27,10 @@ class RolePicker {
             return role?.find { it.roleName == roleName }.isNotNull()
         }
 
+        fun isUserHaves(roleNames: List<String>, role: List<Role>?): Boolean {
+            return role?.find { roleNames.contains(it.roleName) }.isNotNull()
+        }
+
         fun isNotFound(roleNames: List<String>, role: List<Role>?): Boolean {
             return role?.none { roleNames.contains(it.roleName) } ?: true
         }
