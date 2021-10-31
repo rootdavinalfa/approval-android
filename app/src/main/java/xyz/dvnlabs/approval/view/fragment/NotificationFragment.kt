@@ -21,11 +21,14 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.NotificationRepo
+import xyz.dvnlabs.approval.core.notification.NotificationAPI
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.databinding.FragmentNotificationBinding
 import xyz.dvnlabs.approval.model.ErrorResponse
 import xyz.dvnlabs.approval.model.NotificationDTO
+import xyz.dvnlabs.approval.model.TransactionDTO
 import xyz.dvnlabs.approval.view.rv.RvListHistory
+import xyz.dvnlabs.approval.view.viewmodel.NotificationViewModel
 import xyz.dvnlabs.approval.view.viewmodel.UserViewModel
 
 class NotificationFragment : FragmentBase() {
@@ -38,6 +41,8 @@ class NotificationFragment : FragmentBase() {
     private val preferences: Preferences by inject()
 
     private val userViewModel: UserViewModel by sharedViewModel()
+
+    private val notificationViewModel: NotificationViewModel by sharedViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +57,7 @@ class NotificationFragment : FragmentBase() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
-        networkFetch()
+        NotificationAPI.service?.refreshNotification()
     }
 
 
@@ -60,48 +65,19 @@ class NotificationFragment : FragmentBase() {
         val adapter = RvListHistory(requireContext())
         binding.notificationListNotification.layoutManager = LinearLayoutManager(requireContext())
         binding.notificationListNotification.adapter = adapter
-        userViewModel.userNotification.observe(viewLifecycleOwner, {
-            adapter.setData(it)
+
+        notificationViewModel.notificationList.observe(viewLifecycleOwner,{
+            adapter.setData(it.map { notification ->
+                NotificationDTO(
+                    id = notification.idNotification,
+                    body = notification.body,
+                    target = notification.target,
+                    flag = notification.flag,
+                    transaction = TransactionDTO(idTransaction = notification.idTransaction!!)
+                )
+            }.toList())
         })
     }
-
-    private fun networkFetch() {
-        lifecycleScope.launch {
-            preferences.getUserPref.collect {
-                if (it.token.isNotEmpty()) {
-                    notificationRepo.getList(
-                        target = it.userName,
-                        context = requireContext(),
-                        token = it.token,
-                        callback = object : BaseNetworkCallback<List<NotificationDTO>> {
-                            override fun onSuccess(data: List<NotificationDTO>) {
-                                userViewModel.setUserNotification(data.sortedByDescending { dt -> dt.createdDate })
-                            }
-
-                            override fun onFailed(errorResponse: ErrorResponse) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    errorResponse.message,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-
-                            override fun onShowProgress() {
-                                showProgress()
-                            }
-
-                            override fun onHideProgress() {
-                                hideProgress()
-                            }
-
-                        }
-                    )
-                }
-            }
-        }
-
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

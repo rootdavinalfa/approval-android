@@ -13,9 +13,8 @@ import java.util.*
 
 @Entity(tableName = "Notification")
 data class Notification(
-    @PrimaryKey(autoGenerate = true)
-    var idNotification: Long = 0,
-    var idNotificationServer : String = "",
+    @PrimaryKey
+    var idNotification: String = "",
     var receivedUser: String = "",
     var body: String = "",
     var sender: String = "",
@@ -28,7 +27,7 @@ data class Notification(
      * 1 = Received Read
      */
     var flag: String = "0",
-    var idTransaction: Long = 0,
+    var idTransaction: Long? = 0,
     var receivedOn: Long = Date().time
 
 )

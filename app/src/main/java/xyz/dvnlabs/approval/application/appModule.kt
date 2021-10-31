@@ -1,5 +1,6 @@
 package xyz.dvnlabs.approval.application
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -11,6 +12,7 @@ import xyz.dvnlabs.approval.core.data.UserRepo
 import xyz.dvnlabs.approval.core.data.local.LocalDB
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.view.viewmodel.MainViewModel
+import xyz.dvnlabs.approval.view.viewmodel.NotificationViewModel
 import xyz.dvnlabs.approval.view.viewmodel.UserViewModel
 
 val appModule = module {
@@ -20,6 +22,10 @@ val appModule = module {
 
     viewModel {
         UserViewModel(androidApplication())
+    }
+
+    viewModel {
+        NotificationViewModel(androidApplication())
     }
 
     single {
