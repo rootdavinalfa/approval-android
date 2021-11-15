@@ -11,10 +11,13 @@ package xyz.dvnlabs.approval.core.notification
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavDeepLink
+import androidx.navigation.NavDeepLinkBuilder
 import com.google.gson.Gson
 import hu.akarnokd.rxjava3.bridge.RxJavaBridge
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -29,6 +32,7 @@ import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
 import ua.naiksoftware.stomp.dto.StompHeader
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.core.Constant
 import xyz.dvnlabs.approval.core.data.NotificationRepo
@@ -39,6 +43,8 @@ import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.model.ErrorResponse
 import xyz.dvnlabs.approval.model.NotificationDTO
 import xyz.dvnlabs.approval.model.UserNoPassword
+import xyz.dvnlabs.approval.view.activity.MenuActivity
+import xyz.dvnlabs.approval.view.fragment.DetailTrxFragmentArgs
 
 
 class NotificationService : Service() {
@@ -203,12 +209,22 @@ class NotificationService : Service() {
                         idTransaction = notificationDTO.transaction?.idTransaction,
                     )
                 )
+                val idTransaction = notificationDTO.transaction?.idTransaction ?: 0L
+
+                val pendingIntent = NavDeepLinkBuilder(this@NotificationService)
+                    .setGraph(R.navigation.nav_graph)
+                    .setDestination(R.id.detailTrxFragment)
+                    .setComponentName(MenuActivity::class.java)
+                    .setArguments(DetailTrxFragmentArgs(idTransaction).toBundle())
+                    .createPendingIntent()
+
                 NotificationBuilder
                     .notify(
                         NotificationID.NOTIFICATION_NEW_UPDATE,
                         this@NotificationService,
                         notificationDTO.title,
-                        notificationDTO.body
+                        notificationDTO.body,
+                        pendingIntent
                     )
             }
         }

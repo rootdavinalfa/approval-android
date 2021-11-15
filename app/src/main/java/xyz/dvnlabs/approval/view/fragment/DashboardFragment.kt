@@ -65,11 +65,10 @@ class DashboardFragment : FragmentBase() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        networkFetch()
         RxBus.listen(RefreshAction::class.java)
             .subscribe {
                 if (it.where == TargetAction.FRAGMENT_DASHBOARD) {
-                    networkFetch()
+                    fetchUser()
                 }
             }
         viewAction()
@@ -83,83 +82,7 @@ class DashboardFragment : FragmentBase() {
         binding.dashboardGudang.visibility = View.GONE
     }
 
-    private fun networkFetch() {
-        lifecycleScope.launch {
-            preferences.getUserPref.collect {
-                if (it.token.isNotEmpty()) {
-                    mainViewModel.setCurrentUser(it)
 
-                    // Get profile from API
-                    userRepo.getProfile(
-                        token = it.token,
-                        userName = it.userName,
-                        context = requireContext(),
-                        callback = object : BaseNetworkCallback<UserNoPassword> {
-                            override fun onSuccess(data: UserNoPassword) {
-                                mainViewModel.setUserData(data)
-                            }
-
-                            override fun onFailed(errorResponse: ErrorResponse) {
-                                Toast.makeText(activity, errorResponse.error, Toast.LENGTH_LONG)
-                                    .show()
-                            }
-
-                            override fun onShowProgress() {
-                                showProgress()
-                            }
-
-                            override fun onHideProgress() {
-                                hideProgress()
-                            }
-
-                        }
-                    )
-
-                    // Watch
-                    mainViewModel.userData
-                        .observe(viewLifecycleOwner, { user ->
-                            if (user.id.isNotEmpty()) {
-                                resetView()
-                                binding.dashboardTextUsername.text = user.userName
-                                if (RolePicker
-                                        .isUserHave("ROLE_APOTIK", user.roles)
-                                ) {
-                                    fetchApotik(it.token, it.userName)
-                                    viewApotik()
-                                } else if (RolePicker
-                                        .isUserHave("ROLE_VGUDANG", user.roles)
-                                ) {
-                                    binding.dashboardButtonAdd.visibility = View.GONE
-                                    fetchVGudang(it.token, it.userName)
-                                    viewVGudang()
-                                } else if (RolePicker
-                                        .isUserHave("ROLE_GUDANG", user.roles)) {
-                                    binding.dashboardButtonAdd.visibility = View.GONE
-                                    fetchGudang(it.token, it.userName)
-                                    viewGudang()
-                                }
-
-
-                                if (RolePicker.isNotFound(
-                                        listOf(
-                                            "ROLE_APOTIK",
-                                            "ROLE_VGUDANG",
-                                            "ROLE_GUDANG",
-                                            "ROLE_DELIVER",
-                                        ), user.roles
-                                    )
-                                ) {
-                                    fetchApotik(it.token, it.userName)
-                                    viewApotik()
-                                    fetchVGudang(it.token, it.userName)
-                                    viewVGudang()
-                                }
-                            }
-                        })
-                }
-            }
-        }
-    }
 
     private fun fetchApotik(token: String, username: String) {
         transactionRepo.getPage(
@@ -337,6 +260,50 @@ class DashboardFragment : FragmentBase() {
     }
 
     private fun viewAction() {
+
+        mainViewModel.currentUser.observe(viewLifecycleOwner,{
+            // Watch
+            mainViewModel.userData
+                .observe(viewLifecycleOwner, { user ->
+                    if (user.id.isNotEmpty()) {
+                        resetView()
+                        binding.dashboardTextUsername.text = user.userName
+                        if (RolePicker
+                                .isUserHave("ROLE_APOTIK", user.roles)
+                        ) {
+                            fetchApotik(it.token, it.userName)
+                            viewApotik()
+                        } else if (RolePicker
+                                .isUserHave("ROLE_VGUDANG", user.roles)
+                        ) {
+                            binding.dashboardButtonAdd.visibility = View.GONE
+                            fetchVGudang(it.token, it.userName)
+                            viewVGudang()
+                        } else if (RolePicker
+                                .isUserHave("ROLE_GUDANG", user.roles)) {
+                            binding.dashboardButtonAdd.visibility = View.GONE
+                            fetchGudang(it.token, it.userName)
+                            viewGudang()
+                        }
+
+
+                        if (RolePicker.isNotFound(
+                                listOf(
+                                    "ROLE_APOTIK",
+                                    "ROLE_VGUDANG",
+                                    "ROLE_GUDANG",
+                                    "ROLE_DELIVER",
+                                ), user.roles
+                            )
+                        ) {
+                            fetchApotik(it.token, it.userName)
+                            viewApotik()
+                            fetchVGudang(it.token, it.userName)
+                            viewVGudang()
+                        }
+                    }
+                })
+        })
 
         binding.dashboardButtonAdd.setOnClickListener {
             RequestFragment().show(requireActivity().supportFragmentManager, "ADD_FRAGMENT")

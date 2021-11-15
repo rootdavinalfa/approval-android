@@ -9,6 +9,7 @@ package xyz.dvnlabs.approval.core.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -18,10 +19,11 @@ import xyz.dvnlabs.approval.R
 class NotificationBuilder {
     companion object {
         fun notify(
-            notificationID : NotificationID,
+            notificationID: NotificationID,
             context: Context,
-            title : String,
-            body : String
+            title: String,
+            body: String,
+            pendingIntent: PendingIntent? = null
         ) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -41,15 +43,19 @@ class NotificationBuilder {
                 .setSmallIcon(R.drawable.ic_bell)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setStyle(NotificationCompat
-                    .BigTextStyle()
-                    .bigText(body)
+                .setStyle(
+                    NotificationCompat
+                        .BigTextStyle()
+                        .bigText(body)
                 )
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .build()
+
+            pendingIntent?.let {
+                builder.setContentIntent(pendingIntent)
+            }
 
             with(NotificationManagerCompat.from(context)) {
-                notify(notificationID.id, builder)
+                notify(notificationID.id, builder.build())
             }
 
         }
