@@ -203,6 +203,13 @@ class NotificationService : Service() {
                         idTransaction = notificationDTO.transaction?.idTransaction,
                     )
                 )
+                NotificationBuilder
+                    .notify(
+                        NotificationID.NOTIFICATION_NEW_UPDATE,
+                        this@NotificationService,
+                        notificationDTO.title,
+                        notificationDTO.body
+                    )
             }
         }
     }
