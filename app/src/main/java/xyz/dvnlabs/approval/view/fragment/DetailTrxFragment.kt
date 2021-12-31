@@ -138,6 +138,7 @@ class DetailTrxFragment : FragmentBase() {
     }
 
     private fun initView() {
+        fetchUser()
         val adapter = RvListDrug(requireContext())
         binding.detailListObat.layoutManager = LinearLayoutManager(requireContext())
         binding.detailListObat.adapter = adapter
@@ -155,7 +156,8 @@ class DetailTrxFragment : FragmentBase() {
             binding.detailTextStatus.text = it.statusFlag.mapStatusTrx()
             binding.detailButtonAction.text = it.statusFlag.mapStatusDetailTrx()
 
-            mainViewModel.userData.value?.let { user ->
+            mainViewModel.userData.observe(viewLifecycleOwner,{ user ->
+                Log.i("DetailTRX::USERDATA",user.toString())
 
                 when (it.statusFlag) {
                     "1", "2" -> {
@@ -224,8 +226,7 @@ class DetailTrxFragment : FragmentBase() {
                         delivered()
                     }
                 }
-
-            }
+            })
         })
 
         binding.detailButtonCancel.setOnClickListener {
