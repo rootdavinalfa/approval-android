@@ -40,6 +40,7 @@ import xyz.dvnlabs.approval.core.data.UserRepo
 import xyz.dvnlabs.approval.core.data.local.LocalDB
 import xyz.dvnlabs.approval.core.data.local.Notification
 import xyz.dvnlabs.approval.core.preferences.Preferences
+import xyz.dvnlabs.approval.core.util.extractNumber
 import xyz.dvnlabs.approval.model.ErrorResponse
 import xyz.dvnlabs.approval.model.NotificationDTO
 import xyz.dvnlabs.approval.model.UserNoPassword
@@ -224,7 +225,8 @@ class NotificationService : Service() {
                         this@NotificationService,
                         notificationDTO.title,
                         notificationDTO.body,
-                        pendingIntent
+                        pendingIntent,
+                        notificationDTO.id.extractNumber()
                     )
             }
         }

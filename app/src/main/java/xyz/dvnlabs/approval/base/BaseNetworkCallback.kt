@@ -7,6 +7,7 @@
 
 package xyz.dvnlabs.approval.base
 
+import android.util.Log
 import xyz.dvnlabs.approval.model.ErrorResponse
 
 
@@ -22,6 +23,10 @@ interface BaseNetworkCallback<T> {
 
     fun onUnAuthorized(errorResponse: ErrorResponse){
         return
+    }
+
+    fun onVoid(){
+        Log.i("NetworkFetch::OnVoid","Void")
     }
 
 }

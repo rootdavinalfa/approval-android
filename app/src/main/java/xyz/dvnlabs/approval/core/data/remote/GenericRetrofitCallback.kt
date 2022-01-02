@@ -62,6 +62,10 @@ class GenericRetrofitCallback<T>(
             }
         }
 
+        if (response.body() == null) {
+            baseNetworkCallback.onVoid()
+        }
+
     }
 
     override fun onFailure(call: Call<T>, t: Throwable) {

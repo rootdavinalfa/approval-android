@@ -65,7 +65,7 @@ class DetailTrxFragment : FragmentBase() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         idTransaction = args.idTransaction
-        Log.i("ARGS",idTransaction.toString())
+        Log.i("ARGS", idTransaction.toString())
         networkFetch()
         initView()
     }
@@ -101,6 +101,7 @@ class DetailTrxFragment : FragmentBase() {
                     })
 
                 notificationRepo.getList(
+                    target = it.userName,
                     idTransaction = idTransaction,
                     context = requireContext(),
                     token = it.token,
@@ -156,8 +157,8 @@ class DetailTrxFragment : FragmentBase() {
             binding.detailTextStatus.text = it.statusFlag.mapStatusTrx()
             binding.detailButtonAction.text = it.statusFlag.mapStatusDetailTrx()
 
-            mainViewModel.userData.observe(viewLifecycleOwner,{ user ->
-                Log.i("DetailTRX::USERDATA",user.toString())
+            mainViewModel.userData.observe(viewLifecycleOwner, { user ->
+                Log.i("DetailTRX::USERDATA", user.toString())
 
                 when (it.statusFlag) {
                     "1", "2" -> {
@@ -252,10 +253,14 @@ class DetailTrxFragment : FragmentBase() {
                 requireContext(),
                 it.token,
                 object : BaseNetworkCallback<Void> {
-                    override fun onSuccess(data: Void) {
+                    override fun onVoid() {
                         requireActivity().findNavController(
                             R.id.fragmentContainerView
                         ).navigateUp()
+                    }
+
+                    override fun onSuccess(data: Void) {
+                        //
                     }
 
                     override fun onFailed(errorResponse: ErrorResponse) {
@@ -338,10 +343,14 @@ class DetailTrxFragment : FragmentBase() {
                     requireContext(),
                     it.token,
                     object : BaseNetworkCallback<Void> {
-                        override fun onSuccess(data: Void) {
+                        override fun onVoid() {
                             requireActivity().findNavController(
                                 R.id.fragmentContainerView
                             ).navigateUp()
+                        }
+
+                        override fun onSuccess(data: Void) {
+                            //
                         }
 
                         override fun onFailed(errorResponse: ErrorResponse) {

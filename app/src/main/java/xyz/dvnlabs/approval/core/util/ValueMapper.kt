@@ -46,3 +46,7 @@ fun String?.mapStatusDetailTrx(): String {
         }
     }
 }
+
+fun String.extractNumber(): Int {
+    return this.filter(Char::isDigit).toInt()
+}

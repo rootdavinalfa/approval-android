@@ -69,6 +69,7 @@ class DashboardFragment : FragmentBase() {
             .subscribe {
                 if (it.where == TargetAction.FRAGMENT_DASHBOARD) {
                     fetchUser()
+                    viewAction()
                 }
             }
         viewAction()
