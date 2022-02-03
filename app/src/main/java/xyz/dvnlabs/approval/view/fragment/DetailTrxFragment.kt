@@ -243,7 +243,7 @@ class DetailTrxFragment : FragmentBase() {
     }
 
     private fun cancelTrx() {
-        mainViewModel.currentUser.observe(viewLifecycleOwner, {
+        mainViewModel.currentUser.observe(viewLifecycleOwner) {
             if (it.token.isEmpty()) {
                 return@observe
             }
@@ -281,7 +281,7 @@ class DetailTrxFragment : FragmentBase() {
                     }
 
                 })
-        })
+        }
     }
 
     private fun validate() {

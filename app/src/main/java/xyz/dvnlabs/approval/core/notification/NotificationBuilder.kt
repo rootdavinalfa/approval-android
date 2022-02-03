@@ -30,7 +30,7 @@ class NotificationBuilder {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val name = context.getString(R.string.notification_name)
                 val descriptionText = context.getString(R.string.notification_name)
-                val importance = NotificationManager.IMPORTANCE_DEFAULT
+                val importance = NotificationManager.IMPORTANCE_HIGH
                 val channel = NotificationChannel(notificationID.id.toString(), name, importance).apply {
                     description = descriptionText
                 }
@@ -49,7 +49,7 @@ class NotificationBuilder {
                         .BigTextStyle()
                         .bigText(body)
                 )
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
 
             pendingIntent?.let {
                 builder.setContentIntent(pendingIntent)

@@ -25,9 +25,15 @@ class GenericRetrofitCallback<T>(
         baseNetworkCallback.onHideProgress()
         when (response.code()) {
             200 -> {
+                if (response.body() == null) {
+                    baseNetworkCallback.onVoid()
+                }
                 response.body()?.let { baseNetworkCallback.onSuccess(it) }
             }
             201 -> {
+                if (response.body() == null) {
+                    baseNetworkCallback.onVoid()
+                }
                 response.body()?.let { baseNetworkCallback.onSuccess(it) }
             }
             401 -> {
@@ -60,10 +66,6 @@ class GenericRetrofitCallback<T>(
                     )
                 }
             }
-        }
-
-        if (response.body() == null) {
-            baseNetworkCallback.onVoid()
         }
 
     }

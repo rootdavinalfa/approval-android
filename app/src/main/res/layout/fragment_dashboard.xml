@@ -47,7 +47,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/dashboard_refresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -55,56 +56,61 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dashboard_text_username">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <RelativeLayout
-                android:id="@+id/dashboard_apotik"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
-                tools:layout_editor_absoluteX="0dp">
+                android:orientation="vertical">
 
-                <include
-                    android:id="@+id/dashboard_listtrx_layout_apotik"
-                    layout="@layout/dashboard_apotik_listtrx" />
-            </RelativeLayout>
+                <RelativeLayout
+                    android:id="@+id/dashboard_apotik"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
+                    tools:layout_editor_absoluteX="0dp">
 
-            <RelativeLayout
-                android:id="@+id/dashboard_vgudang"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
-                tools:layout_editor_absoluteX="0dp">
+                    <include
+                        android:id="@+id/dashboard_listtrx_layout_apotik"
+                        layout="@layout/dashboard_apotik_listtrx" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/dashboard_vgudang"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dashboard_img_notif"
+                    tools:layout_editor_absoluteX="0dp">
 
 
-                <include
-                    android:id="@+id/dashboard_listtrx_layout_vgudang"
-                    layout="@layout/dashboard_vgudang_listrx" />
+                    <include
+                        android:id="@+id/dashboard_listtrx_layout_vgudang"
+                        layout="@layout/dashboard_vgudang_listrx" />
 
-            </RelativeLayout>
+                </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/dashboard_gudang"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:visibility="gone">
+                <RelativeLayout
+                    android:id="@+id/dashboard_gudang"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone">
 
-                <include
-                    android:id="@+id/dashboard_listtrx_layout_gudang"
-                    layout="@layout/dashboard_gudang_listtrx" />
-            </RelativeLayout>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                    <include
+                        android:id="@+id/dashboard_listtrx_layout_gudang"
+                        layout="@layout/dashboard_gudang_listtrx" />
+                </RelativeLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

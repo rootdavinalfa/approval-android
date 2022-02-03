@@ -12,11 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import xyz.dvnlabs.approval.R
@@ -24,10 +21,10 @@ import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.TransactionRepo
 import xyz.dvnlabs.approval.core.data.UserRepo
+import xyz.dvnlabs.approval.core.data.local.User
 import xyz.dvnlabs.approval.core.event.RefreshAction
 import xyz.dvnlabs.approval.core.event.RxBus
 import xyz.dvnlabs.approval.core.event.TargetAction
-import xyz.dvnlabs.approval.core.notification.NotificationAPI
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.core.util.Page
 import xyz.dvnlabs.approval.core.util.Pageable
@@ -82,7 +79,6 @@ class DashboardFragment : FragmentBase() {
         binding.dashboardApotik.visibility = View.GONE
         binding.dashboardGudang.visibility = View.GONE
     }
-
 
 
     private fun fetchApotik(token: String, username: String) {
@@ -262,49 +258,24 @@ class DashboardFragment : FragmentBase() {
 
     private fun viewAction() {
 
-        mainViewModel.currentUser.observe(viewLifecycleOwner,{
+        binding.dashboardRefresh.setOnRefreshListener {
+            val userLogin = mainViewModel.currentUser.value
+            val userInfo = mainViewModel.userData.value
+            if (userLogin != null && userInfo != null) {
+                refreshData(userLogin, userInfo)
+            }
+            binding.dashboardRefresh.isRefreshing = false
+        }
+
+        mainViewModel.currentUser.observe(viewLifecycleOwner) {
             // Watch
             mainViewModel.userData
-                .observe(viewLifecycleOwner, { user ->
+                .observe(viewLifecycleOwner) { user ->
                     if (user.id.isNotEmpty()) {
-                        resetView()
-                        binding.dashboardTextUsername.text = user.userName
-                        if (RolePicker
-                                .isUserHave("ROLE_APOTIK", user.roles)
-                        ) {
-                            fetchApotik(it.token, it.userName)
-                            viewApotik()
-                        } else if (RolePicker
-                                .isUserHave("ROLE_VGUDANG", user.roles)
-                        ) {
-                            binding.dashboardButtonAdd.visibility = View.GONE
-                            fetchVGudang(it.token, it.userName)
-                            viewVGudang()
-                        } else if (RolePicker
-                                .isUserHave("ROLE_GUDANG", user.roles)) {
-                            binding.dashboardButtonAdd.visibility = View.GONE
-                            fetchGudang(it.token, it.userName)
-                            viewGudang()
-                        }
-
-
-                        if (RolePicker.isNotFound(
-                                listOf(
-                                    "ROLE_APOTIK",
-                                    "ROLE_VGUDANG",
-                                    "ROLE_GUDANG",
-                                    "ROLE_DELIVER",
-                                ), user.roles
-                            )
-                        ) {
-                            fetchApotik(it.token, it.userName)
-                            viewApotik()
-                            fetchVGudang(it.token, it.userName)
-                            viewVGudang()
-                        }
+                        refreshData(it, user)
                     }
-                })
-        })
+                }
+        }
 
         binding.dashboardButtonAdd.setOnClickListener {
             RequestFragment().show(requireActivity().supportFragmentManager, "ADD_FRAGMENT")
@@ -324,6 +295,45 @@ class DashboardFragment : FragmentBase() {
         }
     }
 
+    private fun refreshData(it: User, user: UserNoPassword) {
+        resetView()
+        binding.dashboardTextUsername.text = user.userName
+        if (RolePicker
+                .isUserHave("ROLE_APOTIK", user.roles)
+        ) {
+            fetchApotik(it.token, it.userName)
+            viewApotik()
+        } else if (RolePicker
+                .isUserHave("ROLE_VGUDANG", user.roles)
+        ) {
+            binding.dashboardButtonAdd.visibility = View.GONE
+            fetchVGudang(it.token, it.userName)
+            viewVGudang()
+        } else if (RolePicker
+                .isUserHave("ROLE_GUDANG", user.roles)
+        ) {
+            binding.dashboardButtonAdd.visibility = View.GONE
+            fetchGudang(it.token, it.userName)
+            viewGudang()
+        }
+
+
+        if (RolePicker.isNotFound(
+                listOf(
+                    "ROLE_APOTIK",
+                    "ROLE_VGUDANG",
+                    "ROLE_GUDANG",
+                    "ROLE_DELIVER",
+                ), user.roles
+            )
+        ) {
+            fetchApotik(it.token, it.userName)
+            viewApotik()
+            fetchVGudang(it.token, it.userName)
+            viewVGudang()
+        }
+    }
+
     private fun viewApotik() {
         binding.dashboardApotik.visibility = View.VISIBLE
         val adapterLast = RvListTrx(requireContext())
@@ -331,18 +341,18 @@ class DashboardFragment : FragmentBase() {
             LinearLayoutManager(requireContext())
         binding.dashboardListtrxLayoutApotik.listtrxLast.adapter = adapterLast
 
-        mainViewModel.transactionLast.observe(viewLifecycleOwner, {
+        mainViewModel.transactionLast.observe(viewLifecycleOwner) {
             adapterLast.setData(it)
-        })
+        }
 
         val adapterFinish = RvListTrx(requireContext())
         binding.dashboardListtrxLayoutApotik.listtrxFinish.layoutManager =
             LinearLayoutManager(requireContext())
         binding.dashboardListtrxLayoutApotik.listtrxFinish.adapter = adapterFinish
 
-        mainViewModel.transactionFinish.observe(viewLifecycleOwner, {
+        mainViewModel.transactionFinish.observe(viewLifecycleOwner) {
             adapterFinish.setData(it)
-        })
+        }
 
 
     }
@@ -355,18 +365,18 @@ class DashboardFragment : FragmentBase() {
             LinearLayoutManager(requireContext())
         binding.dashboardListtrxLayoutVgudang.listtrxBelumvalidasi.adapter = adapterValidate
 
-        mainViewModel.transactionValidate.observe(viewLifecycleOwner, {
+        mainViewModel.transactionValidate.observe(viewLifecycleOwner) {
             adapterValidate.setData(it)
-        })
+        }
 
         val adapterDeliver = RvListTrx(requireContext())
         binding.dashboardListtrxLayoutVgudang.listtrxBelumpenugasan.layoutManager =
             LinearLayoutManager(requireContext())
         binding.dashboardListtrxLayoutVgudang.listtrxBelumpenugasan.adapter = adapterDeliver
 
-        mainViewModel.transactionDeliver.observe(viewLifecycleOwner, {
+        mainViewModel.transactionDeliver.observe(viewLifecycleOwner) {
             adapterDeliver.setData(it)
-        })
+        }
 
     }
 
@@ -378,9 +388,9 @@ class DashboardFragment : FragmentBase() {
             LinearLayoutManager(requireContext())
         binding.dashboardListtrxLayoutGudang.listtrxMustdelivered.adapter = adapterValidate
 
-        mainViewModel.transactionMustDelivered.observe(viewLifecycleOwner, {
+        mainViewModel.transactionMustDelivered.observe(viewLifecycleOwner) {
             adapterValidate.setData(it)
-        })
+        }
 
     }
 
