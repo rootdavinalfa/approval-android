@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -23,14 +24,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.core.data.DrugRepo
 import xyz.dvnlabs.approval.core.data.TransactionRepo
-import xyz.dvnlabs.approval.core.event.RefreshAction
-import xyz.dvnlabs.approval.core.event.RxBus
-import xyz.dvnlabs.approval.core.event.TargetAction
 import xyz.dvnlabs.approval.core.preferences.Preferences
 import xyz.dvnlabs.approval.databinding.FragmentCreateBinding
 import xyz.dvnlabs.approval.model.DrugDTO
@@ -151,7 +148,11 @@ class RequestFragment : BottomSheetDialogFragment() {
                         object : BaseNetworkCallback<RequestTransactionDTO> {
                             override fun onSuccess(data: RequestTransactionDTO) {
                                 userViewModel.clearUserSelectedDrug()
-                                RxBus.publish(RefreshAction(TargetAction.FRAGMENT_DASHBOARD))
+                                val navigation = requireActivity().findNavController(
+                                    R.id.fragmentContainerView
+                                )
+                                navigation.popBackStack(R.id.dashboardFragment, true)
+                                navigation.navigate(R.id.dashboardFragment)
                                 this@RequestFragment.dismiss()
                             }
 
