@@ -9,14 +9,16 @@ package xyz.dvnlabs.approval.core.notification
 
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Binder
-import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
-import androidx.navigation.NavDeepLink
 import androidx.navigation.NavDeepLinkBuilder
 import com.google.gson.Gson
 import hu.akarnokd.rxjava3.bridge.RxJavaBridge
@@ -84,12 +86,50 @@ class NotificationService : Service() {
 
     @DelicateCoroutinesApi
     override fun onCreate() {
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            // network is available for use
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                if(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)){
+                    Log.i("NotificationService","Network Available")
+                    GlobalScope.launch {
+                        changedToken()
+                    }
+                }
+            }
+
+            // lost network connection
+            override fun onLost(network: Network) {
+                Log.e("NotificationService","Network Lost!!!")
+                super.onLost(network)
+                resetStomp()
+                mStompClient?.disconnect()
+            }
+        }
+
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+
+
+        val networkRequestBuild = networkRequest.build()
+
+        val connectivityManager =
+            this@NotificationService.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.requestNetwork(networkRequestBuild, networkCallback)
+
         mStompClient =
             Stomp.over(Stomp.ConnectionProvider.OKHTTP, Constant.BASE_URL_WEBSOCKET)
-
-        GlobalScope.launch {
-            connectStomp()
-        }
     }
 
     @DelicateCoroutinesApi
@@ -155,6 +195,7 @@ class NotificationService : Service() {
                             LifecycleEvent.Type.CLOSED -> {
                                 Log.w("NotificationService", it.message, it.exception)
                                 resetStomp()
+                                mStompClient?.disconnect()
                             }
                             LifecycleEvent.Type.FAILED_SERVER_HEARTBEAT -> {
                                 Log.e("NotificationService", it.message, it.exception)
