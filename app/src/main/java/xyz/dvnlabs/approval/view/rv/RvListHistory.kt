@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.core.util.ItemDiff
 import xyz.dvnlabs.approval.databinding.RvListHistoryBinding
 import xyz.dvnlabs.approval.model.NotificationDTO
@@ -65,11 +66,14 @@ class RvListHistory(val context: Context) : RecyclerView.Adapter<RvListHistory.V
 
         override fun onClick(v: View?) {
             val navController = itemView.findNavController()
-            val action = NotificationFragmentDirections
-                .actionNotificationFragmentToDetailTrxFragment(
-                    idTransaction = notification?.transaction?.idTransaction ?: 0L
-                )
-            navController.navigate(action)
+            val currentId = navController.currentDestination?.id ?: -1
+            if (currentId == R.id.notificationFragment) {
+                val action = NotificationFragmentDirections
+                    .actionNotificationFragmentToDetailTrxFragment(
+                        idTransaction = notification?.transaction?.idTransaction ?: 0L
+                    )
+                navController.navigate(action)
+            }
         }
 
     }

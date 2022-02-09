@@ -33,7 +33,9 @@ open class FragmentBase : Fragment() {
 
     private val userRepo: UserRepo by inject()
     private val preferences: Preferences by inject()
+    val basePreferences : Preferences get() = preferences
     private val mainViewModel: MainViewModel by sharedViewModel()
+    val baseMainViewModel : MainViewModel get() = mainViewModel
 
     private val appBarConfig = AppBarConfiguration(setOf(R.id.menu_appbar))
     private lateinit var toolbar: Toolbar
@@ -60,6 +62,7 @@ open class FragmentBase : Fragment() {
                 R.id.dashboardFragment -> toolbar.visibility = View.GONE
                 R.id.detailTrxFragment -> toolbar.visibility = View.GONE
                 R.id.notificationFragment -> toolbar.visibility = View.GONE
+                R.id.reportFragment -> toolbar.visibility = View.GONE
                 else -> toolbar.visibility = View.VISIBLE
             }
         }

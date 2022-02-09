@@ -90,4 +90,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         transactionMustDeliveredFlow.value = transactionDTO
     }
 
+    private val transactionOverviewFlow: MutableStateFlow<List<TransactionDTO>> =
+        MutableStateFlow(ArrayList())
+
+    val transactionOverview: LiveData<List<TransactionDTO>> = transactionOverviewFlow
+        .asLiveData(viewModelScope.coroutineContext).distinctUntilChanged()
+
+    fun setTransactionOverview(transactionDTO: List<TransactionDTO>) {
+        transactionOverviewFlow.value = transactionDTO
+    }
+
 }

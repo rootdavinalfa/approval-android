@@ -11,6 +11,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +21,7 @@ import xyz.dvnlabs.approval.core.util.mapStatusTrx
 import xyz.dvnlabs.approval.databinding.RvListTransactionBinding
 import xyz.dvnlabs.approval.model.TransactionDTO
 import xyz.dvnlabs.approval.view.fragment.DashboardFragmentDirections
-import xyz.dvnlabs.approval.view.fragment.DetailTrxFragment
+import xyz.dvnlabs.approval.view.fragment.ReportFragmentDirections
 
 class RvListTrx(val context: Context) :
     RecyclerView.Adapter<RvListTrx.ViewHolder>() {
@@ -77,9 +78,24 @@ class RvListTrx(val context: Context) :
 
         override fun onClick(v: View?) {
             val navController = itemView.findNavController()
-            val action = DashboardFragmentDirections
-                .actionDashboardFragmentToDetailTrxFragment(idTransaction = transactionDTO?.idTransaction ?: 0L)
-            navController.navigate(action)
+            var action: NavDirections? = null
+            val currentId = navController.currentDestination?.id ?: -1
+            if (currentId == R.id.dashboardFragment) {
+                action = DashboardFragmentDirections
+                    .actionDashboardFragmentToDetailTrxFragment(
+                        idTransaction = transactionDTO?.idTransaction ?: 0L
+                    )
+            } else if (currentId == R.id.reportFragment) {
+                action = ReportFragmentDirections
+                    .actionReportFragmentToDetailTrxFragment(
+                        idTransaction = transactionDTO?.idTransaction ?: 0L
+                    )
+            }
+            navController.currentDestination?.id
+            action?.let {
+                navController.navigate(it)
+            }
+
         }
 
 

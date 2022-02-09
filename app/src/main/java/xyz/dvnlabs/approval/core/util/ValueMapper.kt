@@ -30,6 +30,29 @@ fun String?.mapStatusTrx(): String {
     }
 }
 
+fun String?.mapStatusTrxReverse(): String {
+    return when (this) {
+        "OPEN" -> {
+            "1"
+        }
+        "ON PROGRESS WAREHOUSE" -> {
+            "2"
+        }
+        "ON DELIVERY" -> {
+            "3"
+        }
+        "DELIVERED" -> {
+            "4"
+        }
+        "CANCELED" -> {
+            "5"
+        }
+        else -> {
+            this ?: ""
+        }
+    }
+}
+
 fun String?.mapStatusDetailTrx(): String {
     return when (this) {
         "1" -> {

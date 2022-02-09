@@ -13,7 +13,16 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 
 /**
- * [ItemDiff] Helper for checking is Kotlin Data class for RecyclerView is changed or not
+ * ## Helper for checking is Kotlin Data class for RecyclerView is changed or not
+ *
+ * [old] The old list
+ *
+ * [new] The new List
+ *
+ * [fieldCompares] Field you want to compare
+ *
+ * ### Example
+ *
  */
 class ItemDiff(
     private val old: List<Any>,

@@ -13,11 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import xyz.dvnlabs.approval.R
 import xyz.dvnlabs.approval.base.BaseNetworkCallback
 import xyz.dvnlabs.approval.base.FragmentBase
 import xyz.dvnlabs.approval.core.data.NotificationRepo
@@ -66,7 +68,12 @@ class NotificationFragment : FragmentBase() {
         binding.notificationListNotification.layoutManager = LinearLayoutManager(requireContext())
         binding.notificationListNotification.adapter = adapter
 
-        notificationViewModel.notificationList.observe(viewLifecycleOwner,{
+        binding.notificationListReport.setOnClickListener {
+            val navController = requireActivity().findNavController(R.id.fragmentContainerView)
+            navController.navigate(R.id.reportFragment)
+        }
+
+        notificationViewModel.notificationList.observe(viewLifecycleOwner) {
             adapter.setData(it.map { notification ->
                 NotificationDTO(
                     id = notification.idNotification,
@@ -76,7 +83,7 @@ class NotificationFragment : FragmentBase() {
                     transaction = TransactionDTO(idTransaction = notification.idTransaction!!)
                 )
             }.toList())
-        })
+        }
     }
 
     override fun onDestroyView() {
